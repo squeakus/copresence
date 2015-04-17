@@ -12,13 +12,25 @@
   </head>
 
   <body>
-    <h1 id='username'>Welcome</h1>
-    <h1 id='location'>Location</h1>
+    <div id="header">
+      <h1>Copresence</h1>
+    </div>
 
-    <p id="data"></p>
+    <div id="section">
+      <h1 id='username'>Welcome</h1>
+      <h1 id='location'>Location</h1>
+      <p id="data"></p>
     <canvas></canvas>
-    <ul id='messages'></ul>
-  
+
+    <form action="nav">
+      <input id="m" autocomplete="off" /><button>send</button>
+    </form>
+    </div>
+    
+    <div id="chat">
+      <ul id="messages"></ul>
+    </div>
+
     <script src="./lib/drawleap.js"></script>
   </body>
 
