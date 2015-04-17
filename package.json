@@ -1,6 +1,10 @@
 {
   "name": "copresence",
   "version": "0.0.1",
+  "repository": {
+  "type": "git",
+  "url": "https://github.com/squeakus/copresence"
+  }
   "description": "A novel means of communication",
   "dependencies": {
     "express": "~4.10.8",
