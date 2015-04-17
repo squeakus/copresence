@@ -26,14 +26,13 @@
 	uid = data;
     });
 
-    socket.on('time', function(data) {
-        console.log("received time:" + data.time);
-        $('#messages').append('<li>' + data.time + '</li>');
+    socket.on('message', function(data) {
+        $('#messages').append('<li>' + data + '</li>');
     });
 
     socket.on('update', function(pos) {
         $('#location').text(pos);
-	//drawcircle(pos, "rgba(0,255,0,0.9)")
+	drawcircle(pos, "rgba(0,255,0,0.9)")
     });
 
     function drawcircle(pos, color) {

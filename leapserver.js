@@ -13,33 +13,22 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
-// listen for position changes and transmit update
+// upon connection listen and transmit
 io.on('connection', function(socket){
     usercount += 1;
-    console.log("new user, total:" + usercount)
+    console.log("new user at: " + new Date() + " total:" + usercount)
     socket.emit('welcome',  usercount);
 
     socket.on('newposition', function(pos){
-	console.log('newposition: ' + pos);
+	//console.log('newposition: ' + pos);
 	io.emit('update', pos);
     });
 
     socket.on('disconnect', function() {
-      console.log('Got disconnect!');
+      console.log('Disconnect at:' + new Date());
       usercount -= 1;
     });
-
-
 });
-
-
-// Send current time to all connected clients
-function sendTime() {
-    io.sockets.emit('time', { time: new Date().toJSON() });
-}
-
-// Send current time every 10 secs
-setInterval(sendTime, 10000);
 
 http.listen(3000, function(){
   console.log('listening on *:3000');
