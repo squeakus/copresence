@@ -3,21 +3,35 @@ var app = express();
 var path = require('path');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var usercount = 0;
 
-//specifying the framework
+//all libraries, css go in the public folder
 app.use(express.static(__dirname + '/public'));
 
+//send them the default page
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
 // listen for position changes and transmit update
 io.on('connection', function(socket){
-  socket.on('newposition', function(msg){
-    console.log('newposition: ' + msg);
-    io.emit('update', msg);
-  });
+    usercount += 1;
+    console.log("new user, total:" + usercount)
+    socket.emit('welcome',  usercount);
+
+    socket.on('newposition', function(pos){
+	console.log('newposition: ' + pos);
+	io.emit('update', pos);
+    });
+
+    socket.on('disconnect', function() {
+      console.log('Got disconnect!');
+      usercount -= 1;
+    });
+
+
 });
+
 
 // Send current time to all connected clients
 function sendTime() {

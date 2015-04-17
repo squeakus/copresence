@@ -1,9 +1,9 @@
 (function(){
+    uid = 0;
     // get the canvas, 2d context, paragraph for data and set the radius
-    var canvas = document.getElementsByTagName('canvas')[0],
+    canvas = document.getElementsByTagName('canvas')[0],
     ctx = canvas.getContext('2d'),
     info = document.getElementById('data'),
-    radius = 10;
     
     // set the canvas to cover the screen
     canvas.width = document.body.clientWidth;
@@ -12,22 +12,33 @@
     // move the context co-ordinates to the bottom middle of the screen
     ctx.translate(canvas.width/2, canvas.height);
     
+    // settings for drawing the circle
+    radius = 10;
     ctx.fillStyle = "rgba(0,0,0,0.9)";
-    ctx.strokeStyle = "rgba(255,0,0,0.9)";
     ctx.lineWidth = 5;
-  
-    var socket = io();
+
     
+    // set up the socket and listen for the following events
+    socket = io();
+    
+    socket.on('welcome', function(data) {
+        $('#username').text("Welcome user "+ data);
+	uid = data;
+    });
+
     socket.on('time', function(data) {
-        console.log("received time:" + data);
+        console.log("received time:" + data.time);
         $('#messages').append('<li>' + data.time + '</li>');
     });
 
-    socket.on('update', function(data) {
-        $('#messages').append('<li>' + data + '</li>');
+    socket.on('update', function(pos) {
+        $('#location').text(pos);
+	//drawcircle(pos, "rgba(0,255,0,0.9)")
     });
 
-    function drawcircle(pos) {
+    function drawcircle(pos, color) {
+	ctx.strokeStyle = color;
+
 	// draw the circle where the pointable is
 	ctx.beginPath();
 	x = pos[0];
@@ -46,7 +57,6 @@
 	// cover the canvas with a 10% opaque layer for fade out effect.
 	ctx.fillStyle = "rgba(255,255,255,0.1)";
 	ctx.fillRect(-canvas.width/2,-canvas.height,canvas.width,canvas.height);
-	
 	// set the fill to black for the points
 	ctx.fillStyle = "rgba(0,0,0,0.9)";
 	// loop over the frame's pointables
@@ -57,7 +67,7 @@
 	    console.log(pos);
 	    // add the position data to our data array
 	    data.push(pos);
-	    drawcircle(pos);
+	    drawcircle(pos, "rgba(0,0,255,0.9)");
 	}
     };
 
