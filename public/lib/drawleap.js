@@ -5,7 +5,6 @@
       info = document.getElementById('data'),
       radius = 10;
 
-  console.log("loaded handpoints");
   // set the canvas to cover the screen
   canvas.width = document.body.clientWidth;
   canvas.height = document.body.clientHeight;
@@ -43,14 +42,16 @@
       // get the pointable and its position
       pos = frame.hands[i].palmPosition;
       socket.emit('chat message', pos);
-
-      console.log(frame.hands[i].palmPosition);
+      console.log(pos);
       // add the position data to our data array
       data.push(pos);
 
       // draw the circle where the pointable is
       ctx.beginPath();
-      ctx.arc(pos.x-radius/2 ,-(pos.y-radius/2),radius,0,2*Math.PI);
+      x = pos[0];
+      y = pos[1];
+      z = pos[2];
+      ctx.arc(x-radius/2 ,-(y-radius/2),radius,0,2*Math.PI);
       ctx.fill();
       ctx.stroke();
     }

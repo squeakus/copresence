@@ -1,9 +1,10 @@
 {
-  "name": "socket-chat-example",
+  "name": "copresence",
   "version": "0.0.1",
-  "description": "my first socket.io app",
+  "description": "A novel means of communication",
   "dependencies": {
     "express": "~4.10.8",
-    "socket.io": "~1.3.5"
+    "socket.io": "~1.3.5",
+    "leapjs": "~0.6.4"
   }
 }
