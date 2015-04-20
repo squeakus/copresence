@@ -1,13 +1,17 @@
 (function(){
-    uid = 0;
+    uid = 0; // Unique ID for every user
+    window.setInterval(function() {
+	var elem = document.getElementById('chat');
+	elem.scrollTop = elem.scrollHeight;
+    }, 1000);
+    
     // get the canvas, 2d context, paragraph for data and set the radius
     canvas = document.getElementsByTagName('canvas')[0],
     ctx = canvas.getContext('2d'),
     info = document.getElementById('data'),
-    
     // set the canvas to cover the screen
-    canvas.width = document.body.clientWidth;
-    canvas.height = document.body.clientHeight;
+    canvas.width = document.getElementById('section').clientWidth;
+    canvas.height = document.getElementById('section').clientHeight;
     
     // move the context co-ordinates to the bottom middle of the screen
     ctx.translate(canvas.width/2, canvas.height);
@@ -16,7 +20,6 @@
     radius = 10;
     ctx.fillStyle = "rgba(0,0,0,0.9)";
     ctx.lineWidth = 5;
-
     
     // set up the socket and listen for the following events
     socket = io();
@@ -34,6 +37,14 @@
         $('#location').text(pos);
 	drawcircle(pos, "rgba(0,255,0,0.9)")
     });
+    
+    // transmit message on form submission
+    $('form').submit(function(){
+    socket.emit('message', [uid, $('#m').val()]);
+    $('#m').val('');
+    return false;
+    });
+
 
     function drawcircle(pos, color) {
 	ctx.strokeStyle = color;
