@@ -1,0 +1,8 @@
+2015-04-01: 8 hours setting up different input devices
+2015-04-09: 2 hours chat example
+2015-04-10: 6 hours setting up laptops and fiddling with socketio
+2015-04-13: 2 hours leapsocket
+2015-04-17: 8 hours setting up copresence
+2015-04-20: 2 hours Setting up servers
+2015-04-26: 2 hours getting keyboard inputs
+
