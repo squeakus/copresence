@@ -26,14 +26,15 @@ html, body {
 }
 #section {
   float:left;
-  width:77%;
- height:80%;
-  padding:10px;
+  width:79%;
+  height:85%;
+  padding:00px;
 }
 
 
 canvas{
   display:block;
+  background: rgb(128, 128, 128);
 }
 
 form { 
