@@ -2,7 +2,8 @@
     uid = 0; // Unique ID for every user
     // settings for drawing the circle
     radius = 5;
-    trail = true;
+    trail = false;
+    drawpred = false;
     queue = [];
 
     //This function is to scroll on the chat window
@@ -43,17 +44,16 @@
 	    x = Math.round(pos[0]);
 	    y = Math.round(pos[1]);
 	    z = Math.round(pos[2]);
-	    queue.push([x,y]);
-	    
-	    if(queue.length > 5){
+            $('#location').text("Position x" + x + " y " + y + " z " + z);
+
+	    //queue stores last known positions
+	    queue.push([pos[0], pos[1]]);	    
+	    if(queue.length > 4){
 		queue.shift();
-	    }
-	    
+	    }	    
+	    // use queue to draw next position
 	    prediction = predict(queue);
-            $('#location').text("x" + x + " y " + y + " z " + z);
-	    drawcircle(pos, "rgba(255,255,255,0.9)")
 	    drawcircle(prediction, "rgba(255,0,0,0.9)")
-	    
 	});
     
 	// transmit message on form submission
@@ -70,18 +70,21 @@
 	    for (j = 0; j < queue[i].length; j++)
 		delta[j] += queue[i][j] - queue[i+1][j];
 	}
+	px = Math.round(delta[0] * 100) / 100;
+	py = Math.round(delta[1] * 100) / 100;
+	pz = Math.round(delta[2] * 100) / 100;
+        $('#prediction').text("Prediction x" + px + " y " + py + " z " + pz);
 
 	newpos = [0,0,0];
 	lastpos = queue[0];
 	for (i = 0; i < lastpos.length; i ++){
-	    newpos[i] = lastpos[i] - (delta[i] * 2);
+	    newpos[i] = lastpos[i] - ((delta[i])*2);
 	}
 	return newpos;
     }
 
-    function drawcircle(pos, color) {
+    function drawcircle(position, color) {
 	ctx.strokeStyle = color;
-
 	// cover the canvas with a 10% opaque layer for fade out effect
 	if(trail){
 	    ctx.fillStyle = "rgba(200,200,200,0.1)";
@@ -94,10 +97,9 @@
 		     canvas.width,
 		     canvas.height);
 
-
 	// draw the circle where the pointable is
-	x = pos[0] * 2;
-	y = pos[1] * 2;
+	x = position[0] * 2;
+	y = position[1] * 2;
 	circx = x-radius/2;
 	circy = -(y-radius/2);
 
@@ -122,9 +124,9 @@
 	    // get the pointable and its position
 	    pos = frame.hands[i].palmPosition;
 	    socket.emit('newposition', pos);
-	    // add the position data to our data array
-	    data.push(pos);
-	    drawcircle(pos, "rgba(0,0,255,0.9)");
+	    if (!drawpred){
+		drawcircle(pos, "rgba(0,0,255,0.9)");
+	    }
 	}
     };
     
@@ -142,9 +144,13 @@
 		    radius -= 1;
 		}
 	    }
-	    // t turns off the trail
+	    // t switches trail
 	    else if (event.keyCode == 84) {
-		trail = !(trail)
+		trail = !(trail);
+	    }
+	    // p switches prediction 
+	    else if (event.keyCode == 80) {
+		drawpred = !(drawpred);
 	    }
 	}, true);
     }
