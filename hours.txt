@@ -5,4 +5,5 @@
 2015-04-17: 8 hours setting up copresence
 2015-04-20: 2 hours Setting up servers
 2015-04-26: 2 hours getting keyboard inputs
-
+2015-04-27: 4 hours implementing prediction module
+2015-05-04: 6 hours starting multiuser

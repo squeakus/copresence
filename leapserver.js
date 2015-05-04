@@ -3,6 +3,7 @@ var app = express();
 var path = require('path');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var userid = 0;
 var usercount = 0;
 
 //all libraries, css go in the public folder
@@ -15,13 +16,13 @@ app.get('/', function(req, res){
 
 // upon connection listen and transmit
 io.on('connection', function(socket){
-    usercount += 1;
+    usercount = userid + 1;
     console.log("new user at: " + new Date() + " total:" + usercount)
-    socket.emit('welcome',  usercount);
+    socket.emit('welcome', usercount);
+    userid += 1;
 
     // receive new leap position, transmit to everyone
     socket.on('newposition', function(pos){
-	//console.log('newposition: ' + pos);
 	io.emit('update', pos);
     });
 

@@ -1,10 +1,10 @@
 (function(){
     uid = 0; // Unique ID for every user
     // settings for drawing the circle
-    radius = 5;
+    radius = 15;
     trail = false;
     drawpred = false;
-    queue = [];
+    players = [[],[]];
 
     //This function is to scroll on the chat window
     window.setInterval(function() {
@@ -28,7 +28,7 @@
     ctx.translate(canvas.width/2, canvas.height);
     
     function setupsockets() {    
-	// set up the socket and listen for the following events
+	// connect to server and listen for the following events
 	socket = io();
 	
 	socket.on('welcome', function(data) {
@@ -50,7 +50,8 @@
 	    queue.push([pos[0], pos[1]]);	    
 	    if(queue.length > 4){
 		queue.shift();
-	    }	    
+	    }
+
 	    // use queue to draw next position
 	    prediction = predict(queue);
 	    drawcircle(prediction, "rgba(255,0,0,0.9)")
@@ -124,9 +125,7 @@
 	    // get the pointable and its position
 	    pos = frame.hands[i].palmPosition;
 	    socket.emit('newposition', pos);
-	    if (!drawpred){
-		drawcircle(pos, "rgba(0,0,255,0.9)");
-	    }
+	    drawcircle(pos, "rgba(0,0,255,0.9)");
 	}
     };
     
@@ -134,7 +133,7 @@
 	document.addEventListener('keydown', function(event) {
 	    // up arrow increase circle size
 	    if (event.keyCode == 38) {
-		if (radius < 20){
+		if (radius < 50){
 		    radius += 1;
 		}
 	    }
