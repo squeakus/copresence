@@ -19,10 +19,11 @@ io.on('connection', function(socket){
     var i = allClients.indexOf(socket);
     console.log("new user at: " + new Date() + " total: " + i)
     socket.emit('welcome', i);
+    io.emit('new player', i);
 
     // receive new leap position, transmit to everyone
-    socket.on('newposition', function(pos){
-	io.emit('update', pos);
+    socket.on('newposition', function(pos, userid){
+	io.emit('update', pos, userid);
     });
 
     // If comeone submits a chat message
@@ -36,9 +37,9 @@ io.on('connection', function(socket){
     // decrement users on disconnect
     socket.on('disconnect', function() {
 	var i = allClients.indexOf(socket);
+	io.emit('player left', i);
 	delete allClients[i];
 	console.log('User ' + i +' disconnected:' + new Date());
-
  });
 });
 

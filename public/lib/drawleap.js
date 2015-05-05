@@ -4,7 +4,7 @@
     radius = 15;
     trail = false;
     drawpred = false;
-    players = [[],[]];
+    players = [];
     queue = [];
 
     //This function is to scroll on the chat window
@@ -35,29 +35,44 @@
             $('#username').text("Welcome user "+ data);
 	    uid = data;
 	});
+
+	socket.on('new player', function(data) {
+	    players.push(data);
+            $('#messages').append('<li> New player! '+data+'</li>');
+	});
+	
+	socket.on('player left', function(data) {
+	    var i = allClients.indexOf(socket);
+	    delete allClients[i];
+            $('#messages').append('<li> Player ' + i + ' left</li>');
+
+	});
 	
 	socket.on('message', function(data) {
             $('#messages').append('<li>' + data + '</li>');
 	});
-	
-	socket.on('update', function(pos) {
-	    x = Math.round(pos[0]);
-	    y = Math.round(pos[1]);
-	    z = Math.round(pos[2]);
 
-	    //$('#user2loc').text("Position : x " + x + " y " + y + " z " + z);
-	    //queue stores last known positions
-	    queue.push([pos[0], pos[1]]);	    
-	    if(queue.length > 4){
-		queue.shift();
+	socket.on('update', function(pos, userid) {
+	    if (!(uid == userid)){
+		x = Math.round(pos[0]);
+		y = Math.round(pos[1]);
+		z = Math.round(pos[2]);	
+		$('#user2loc').text("Position: "+userid+": x " + x + " y " + y + " z " + z);
+
+		//queue stores last known positions
+		// queue.push([pos[0], pos[1]]);	    
+		// if(queue.length > 4){
+		//     queue.shift();
+		// }
+		
+		// use queue to draw next position
+		//prediction = predict(queue);
+		//drawcircle(prediction, "rgba(255,0,0,0.9)")
+		drawcircle(pos, "rgba(255,0,0,0.9)")
 	    }
-
-	    // use queue to draw next position
-	    prediction = predict(queue);
-	    drawcircle(prediction, "rgba(255,0,0,0.9)")
 	});
     
-	// transmit message on form submission
+	// Send text message from the form
 	$('form').submit(function(){
 	    socket.emit('message', [uid, $('#m').val()]);
 	    $('#m').val('');
@@ -124,7 +139,7 @@
 	for (i=0, len=frame.hands.length; i<len; i++) {
 	    // get the pointable and its position
 	    pos = frame.hands[i].palmPosition;
-	    socket.emit('newposition', pos);
+	    socket.emit('newposition', pos, uid);
 	    x = Math.round(pos[0]);
 	    y = Math.round(pos[1]);
 	    z = Math.round(pos[2]);
