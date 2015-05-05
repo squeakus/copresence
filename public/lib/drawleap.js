@@ -5,6 +5,7 @@
     trail = false;
     drawpred = false;
     players = [[],[]];
+    queue = [];
 
     //This function is to scroll on the chat window
     window.setInterval(function() {
@@ -30,7 +31,6 @@
     function setupsockets() {    
 	// connect to server and listen for the following events
 	socket = io();
-	
 	socket.on('welcome', function(data) {
             $('#username').text("Welcome user "+ data);
 	    uid = data;
@@ -44,8 +44,8 @@
 	    x = Math.round(pos[0]);
 	    y = Math.round(pos[1]);
 	    z = Math.round(pos[2]);
-            $('#location').text("Position x" + x + " y " + y + " z " + z);
 
+	    //$('#user2loc').text("Position : x " + x + " y " + y + " z " + z);
 	    //queue stores last known positions
 	    queue.push([pos[0], pos[1]]);	    
 	    if(queue.length > 4){
@@ -125,6 +125,10 @@
 	    // get the pointable and its position
 	    pos = frame.hands[i].palmPosition;
 	    socket.emit('newposition', pos);
+	    x = Math.round(pos[0]);
+	    y = Math.round(pos[1]);
+	    z = Math.round(pos[2]);
+            $('#user1loc').text("Position: "+ uid +": x " + x + " y " + y + " z " + z);
 	    drawcircle(pos, "rgba(0,0,255,0.9)");
 	}
     };
