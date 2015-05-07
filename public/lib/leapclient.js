@@ -4,7 +4,7 @@
     radius = 15;
     trail = false;
     drawpred = false;
-    players = [];
+    positions = [[],[],[],[],[],[]];
     queue = [];
 
     //This function is to scroll on the chat window
@@ -37,15 +37,12 @@
 	});
 
 	socket.on('new player', function(data) {
-	    players.push(data);
+	    positions[data].push([0,0]);
             $('#messages').append('<li> New player! '+data+'</li>');
 	});
 	
 	socket.on('player left', function(data) {
-	    var i = allClients.indexOf(socket);
-	    delete allClients[i];
-            $('#messages').append('<li> Player ' + i + ' left</li>');
-
+            $('#messages').append('<li> Player ' + data + ' left</li>');
 	});
 	
 	socket.on('message', function(data) {
@@ -58,6 +55,7 @@
 		y = Math.round(pos[1]);
 		z = Math.round(pos[2]);	
 		$('#user2loc').text("Position: "+userid+": x " + x + " y " + y + " z " + z);
+		positions[userid].push([x,y]);
 
 		//queue stores last known positions
 		// queue.push([pos[0], pos[1]]);	    
@@ -101,17 +99,6 @@
 
     function drawcircle(position, color) {
 	ctx.strokeStyle = color;
-	// cover the canvas with a 10% opaque layer for fade out effect
-	if(trail){
-	    ctx.fillStyle = "rgba(200,200,200,0.1)";
-	}
-	else{
-	    ctx.fillStyle = "rgba(200,200,200,1)";
-	}
-	ctx.fillRect(-canvas.width/2,
-		     -canvas.height,
-		     canvas.width,
-		     canvas.height);
 
 	// draw the circle where the pointable is
 	x = position[0] * 2;
@@ -134,8 +121,22 @@
 	// set up data array and other variables
 	var data = [],
         pos, i, len;
+
+	// cover the canvas with a 10% opaque layer for fade out effect
+	if(trail){
+	    ctx.fillStyle = "rgba(200,200,200,0.1)";
+	}
+	else{
+	    ctx.fillStyle = "rgba(200,200,200,1)";
+	}
+
+	//draw white rectangle to clear the screen
+	ctx.fillRect(-canvas.width/2,
+		     -canvas.height,
+		     canvas.width,
+		     canvas.height);
 	
-	// loop over the frame's pointables
+	// loop over both hands (we are only using one)
 	for (i=0, len=frame.hands.length; i<len; i++) {
 	    // get the pointable and its position
 	    pos = frame.hands[i].palmPosition;
@@ -144,7 +145,17 @@
 	    y = Math.round(pos[1]);
 	    z = Math.round(pos[2]);
             $('#user1loc').text("Position: "+ uid +": x " + x + " y " + y + " z " + z);
-	    drawcircle(pos, "rgba(0,0,255,0.9)");
+	    drawcircle(pos, "rgba(0,0,255,0.9)")
+	}
+
+	//draw the other player
+	for(i=0; i < positions.length; i++) {
+	    player =  positions[i];
+	    
+	    if (player.length > 1){
+		lastpos = player[player.length -1];
+		drawcircle(lastpos, "rgba(255,0,0,0.9)");
+	    }
 	}
     };
     
