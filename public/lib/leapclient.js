@@ -4,6 +4,7 @@
     radius = 15;
     trail = false;
     drawpred = false;
+    playing = false;
     positions = [[],[],[],[],[],[]];
     queue = [];
 
@@ -32,13 +33,19 @@
 	// connect to server and listen for the following events
 	socket = io();
 	socket.on('welcome', function(data) {
-            $('#username').text("Welcome user "+ data);
 	    uid = data;
+	    if(uid == 3){
+		$('#username').text("Sorry two users already playing");
+	    }
+	    else{
+		playing = true;
+		$('#username').text("Welcome user "+ uid);
+	    }
 	});
 
 	socket.on('new player', function(data) {
 	    positions[data].push([0,0]);
-            $('#messages').append('<li> New player! '+data+'</li>');
+            $('#messages').append('<li> New player '+data+'</li>');
 	});
 	
 	socket.on('player left', function(data) {
@@ -66,7 +73,7 @@
 		// use queue to draw next position
 		//prediction = predict(queue);
 		//drawcircle(prediction, "rgba(255,0,0,0.9)")
-		drawcircle(pos, "rgba(255,0,0,0.9)")
+		//drawcircle(pos, "rgba(255,0,0,0.9)")
 	    }
 	});
     
@@ -121,7 +128,7 @@
 	// set up data array and other variables
 	var data = [],
         pos, i, len;
-
+	    
 	// cover the canvas with a 10% opaque layer for fade out effect
 	if(trail){
 	    ctx.fillStyle = "rgba(200,200,200,0.1)";
@@ -129,25 +136,27 @@
 	else{
 	    ctx.fillStyle = "rgba(200,200,200,1)";
 	}
-
+	
 	//draw white rectangle to clear the screen
 	ctx.fillRect(-canvas.width/2,
 		     -canvas.height,
 		     canvas.width,
 		     canvas.height);
-	
-	// loop over both hands (we are only using one)
-	for (i=0, len=frame.hands.length; i<len; i++) {
-	    // get the pointable and its position
-	    pos = frame.hands[i].palmPosition;
-	    socket.emit('newposition', pos, uid);
-	    x = Math.round(pos[0]);
-	    y = Math.round(pos[1]);
-	    z = Math.round(pos[2]);
-            $('#user1loc').text("Position: "+ uid +": x " + x + " y " + y + " z " + z);
-	    drawcircle(pos, "rgba(0,0,255,0.9)")
-	}
 
+	//only draw yourself if you are playing
+	if (playing){
+	    // loop over both hands (we are only using one)
+	    for (i=0, len=frame.hands.length; i<len; i++) {
+		// get the pointable and its position
+		pos = frame.hands[i].palmPosition;
+		socket.emit('newposition', pos, uid);
+		x = Math.round(pos[0]);
+		y = Math.round(pos[1]);
+		z = Math.round(pos[2]);
+		$('#user1loc').text("Position: "+ uid +": x " + x + " y " + y + " z " + z);
+		drawcircle(pos, "rgba(0,0,255,0.9)")
+	    }
+	}
 	//draw the other player
 	for(i=0; i < positions.length; i++) {
 	    player =  positions[i];

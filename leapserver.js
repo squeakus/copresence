@@ -3,7 +3,8 @@ var app = express();
 var path = require('path');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var allClients = [];
+//only two for the moment
+var allClients = [null,null];
 
 //all libraries, css go in the public folder
 app.use(express.static(__dirname + '/public'));
@@ -15,11 +16,21 @@ app.get('/', function(req, res){
 
 // upon connection listen and transmit
 io.on('connection', function(socket){
-    allClients.push(socket);
-    var i = allClients.indexOf(socket);
-    console.log("new user at: " + new Date() + " total: " + i)
-    socket.emit('welcome', i);
-    io.emit('new player', i);
+    if (allClients[0] == null){
+	allClients[0] = socket;
+	console.log("new user 0 at: " + new Date());
+	socket.emit('welcome', 0);
+	io.emit('new player', 0);
+    }
+    else if (allClients[1] == null){
+	allClients[1] = socket;
+	console.log("new user 1 at: " + new Date());
+	socket.emit('welcome', 1);
+	io.emit('new player', 1);
+    }
+    else {
+	socket.emit('welcome', 3);
+    }
 
     // receive new leap position, transmit to everyone
     socket.on('newposition', function(pos, userid){
@@ -29,6 +40,7 @@ io.on('connection', function(socket){
     // If comeone submits a chat message
     socket.on('message', function(data){
 	uid = data[0];
+
 	msg = data[1];
 	console.log('msg from user ' + uid + ": " + msg);
 	io.emit('message', "user " + uid + ": "+ msg);
@@ -38,7 +50,7 @@ io.on('connection', function(socket){
     socket.on('disconnect', function() {
 	var i = allClients.indexOf(socket);
 	io.emit('player left', i);
-	delete allClients[i];
+	allClients[i] = null;
 	console.log('User ' + i +' disconnected:' + new Date());
  });
 });
