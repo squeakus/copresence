@@ -2,6 +2,7 @@
     uid = 0; // Unique ID for every user
     radius = 15; // radius of the user circle
     predsample = 4; // how many past positions are used to predict
+    predmult = 2; // the multiplier for the change
     drawpred = false; //draw the prediction rather than the position
     trail = false; // draw a fancy trail behind the player
     playing = false; //only 2 players allowed at the moment
@@ -62,12 +63,13 @@
 		x = Math.round(pos[0]);
 		y = Math.round(pos[1]);
 		z = Math.round(pos[2]);	
-		$('#user2loc').text("Position: "+userid+": x " + x + " y " + y + " z " + z);
+		
+		$('#user2loc').text("Position: "+userid+": x "+x+"y"+y);
 		player.push([x,y]);
 
 		// If there are enough positions make a prediction
 		poslen = player.length;
-		console.log("poslen"+poslen+" samplesize"+predsample);
+
 		if( poslen > predsample){
 		    samples = player.slice(poslen - predsample, 
 					      poslen);
@@ -101,7 +103,7 @@
 	newpos = [0,0,0];
 	lastpos = queue[0];
 	for (i = 0; i < lastpos.length; i ++){
-	    newpos[i] = lastpos[i] - ((delta[i])*2);
+	    newpos[i] = lastpos[i] - ((delta[i])* predmult);
 	}
 	return newpos;
     }
@@ -155,7 +157,7 @@
 		x = Math.round(pos[0]);
 		y = Math.round(pos[1]);
 		z = Math.round(pos[2]);
-		$('#user1loc').text("Position: "+ uid +": x " + x + " y " + y + " z " + z);
+		$('#user1loc').text("Position: "+uid+": x "+x+" y "+y);
 		drawcircle(pos, "rgba(0,0,255,0.9)")
 	    }
 	}
@@ -163,13 +165,10 @@
 	for(i=0; i < positions.length; i++) {
 	    if (i != uid){	    
 		// draw prediction in green
-		if (drawpred){
-		    console.log("drawpred"+drawpred);
-		    
+		if (drawpred){		    
 		    if (predictions[i].length > 1){
 			player =  predictions[i];
 			pos = player[player.length -1];
-			console.log(pos);
 			drawcircle(pos, "rgba(0,255,0,0.9)");
 		    }
 		}
@@ -187,8 +186,22 @@
     
     function keylistener(){
 	document.addEventListener('keydown', function(event) {
+	    // right arrow increases the sample size
+	    if (event.keyCode == 39) {
+		predsample = predsample + 1;
+		$('#messages').append('<li> samples: '+predsample+'</li>');
+	    }
+
+	    // left arrow reduces the sample size
+	    else if (event.keyCode == 37) {
+		if (predsample > 1){
+		    predsample = predsample - 1;
+		    $('#messages').append('<li> samples: '+predsample+'</li>');
+		}
+	    }
+
 	    // up arrow increase circle size
-	    if (event.keyCode == 38) {
+	    else if (event.keyCode == 38) {
 		if (radius < 50){
 		    radius += 1;
 		}
@@ -203,9 +216,25 @@
 	    else if (event.keyCode == 84) {
 		trail = !(trail);
 	    }
+
+	    // plus(+) increases the prediction multiplier
+	    else if (event.keyCode == 107) {
+		predmult = predmult + 0.1;
+		$('#messages').append('<li> Multiplier: '+predmult+'</li>');
+	    }
+
+	    // minus(-) decreases the prediction multiplier
+	    else if (event.keyCode == 109) {
+		if (predmult > 0.5){
+		    predmult = predmult - 0.1;
+		    $('#messages').append('<li> Multiplier: '+predmult+'</li>');
+		}
+	    }
+
 	    // p switches prediction 
 	    else if (event.keyCode == 80) {
 		drawpred = !(drawpred);
+		$('#messages').append('<li> Prediction: '+drawpred+'</li>');
 	    }
 	}, true);
     }
