@@ -1,12 +1,12 @@
 (function(){
     uid = 0; // Unique ID for every user
-    // settings for drawing the circle
-    radius = 15;
-    trail = false;
-    drawpred = false;
-    playing = false;
-    positions = [[],[],[],[],[],[]];
-    queue = [];
+    radius = 15; // radius of the user circle
+    predsample = 4; // how many past positions are used to predict
+    drawpred = false; //draw the prediction rather than the position
+    trail = false; // draw a fancy trail behind the player
+    playing = false; //only 2 players allowed at the moment
+    positions = [[],[]]; //holds all the players previous positions
+    predictions = [[],[]]; // holds all the predictions
 
     //This function is to scroll on the chat window
     window.setInterval(function() {
@@ -58,22 +58,24 @@
 
 	socket.on('update', function(pos, userid) {
 	    if (!(uid == userid)){
+		player = positions[userid];
 		x = Math.round(pos[0]);
 		y = Math.round(pos[1]);
 		z = Math.round(pos[2]);	
 		$('#user2loc').text("Position: "+userid+": x " + x + " y " + y + " z " + z);
-		positions[userid].push([x,y]);
+		player.push([x,y]);
 
-		//queue stores last known positions
-		// queue.push([pos[0], pos[1]]);	    
-		// if(queue.length > 4){
-		//     queue.shift();
-		// }
-		
-		// use queue to draw next position
-		//prediction = predict(queue);
-		//drawcircle(prediction, "rgba(255,0,0,0.9)")
-		//drawcircle(pos, "rgba(255,0,0,0.9)")
+		// If there are enough positions make a prediction
+		poslen = player.length;
+		console.log("poslen"+poslen+" samplesize"+predsample);
+		if( poslen > predsample){
+		    samples = player.slice(poslen - predsample, 
+					      poslen);
+
+		    // use samples to draw next position
+		    prediction = predict(samples);
+		    predictions[userid].push(prediction);
+		}
 	    }
 	});
     
@@ -157,13 +159,28 @@
 		drawcircle(pos, "rgba(0,0,255,0.9)")
 	    }
 	}
-	//draw the other player
+	//draw the other players
 	for(i=0; i < positions.length; i++) {
-	    player =  positions[i];
-	    
-	    if (player.length > 1){
-		lastpos = player[player.length -1];
-		drawcircle(lastpos, "rgba(255,0,0,0.9)");
+	    if (i != uid){	    
+		// draw prediction in green
+		if (drawpred){
+		    console.log("drawpred"+drawpred);
+		    
+		    if (predictions[i].length > 1){
+			player =  predictions[i];
+			pos = player[player.length -1];
+			console.log(pos);
+			drawcircle(pos, "rgba(0,255,0,0.9)");
+		    }
+		}
+		// or draw last known position in red 
+		else{
+		    if (positions[i].length > 1){
+			player =  positions[i];
+			pos = player[player.length -1];
+			drawcircle(pos, "rgba(255,0,0,0.9)");
+		    }
+		}
 	    }
 	}
     };

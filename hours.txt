@@ -9,3 +9,4 @@
 2015-05-04: 6 hours starting multiuser
 2015-05-04: 4 hours now tracking multiple players
 2015-05-04: 4 hours drawing both players and limited to two 
+2015-05-04: 4 hours now predicting second player
