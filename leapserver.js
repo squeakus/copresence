@@ -3,6 +3,23 @@ var app = express();
 var path = require('path');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var fs = require('fs');
+var now = Date.now();
+
+function writetofile(text) {
+    tdiff = Date.now() - now;
+    now = Date.now();
+    newtext = String(now) + ': ' + text + ' delay=' + String(tdiff) + '\n';
+
+    fs.appendFile("log.txt", newtext, function(err) {
+	if(err) {
+            return console.log(err);
+	}
+    }); 
+}
+
+writetofile("hello!");
+
 //only two for the moment
 var allClients = [null,null];
 
@@ -34,6 +51,7 @@ io.on('connection', function(socket){
 
     // receive new leap position, transmit to everyone
     socket.on('newposition', function(pos, userid){
+	writetofile("newpos");
 	io.emit('update', pos, userid);
     });
 

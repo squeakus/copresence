@@ -7,6 +7,7 @@
 2015-04-26: 2 hours getting keyboard inputs
 2015-04-27: 4 hours implementing prediction module
 2015-05-04: 6 hours starting multiuser
-2015-05-04: 4 hours now tracking multiple players
-2015-05-04: 4 hours drawing both players and limited to two 
-2015-05-04: 4 hours now predicting second player
+2015-05-05: 4 hours now tracking multiple players
+2015-05-07: 4 hours drawing both players and limited to two 
+2015-05-11: 4 hours now predicting second player
+2015-05-30: 4 hours starting time logging experiments
