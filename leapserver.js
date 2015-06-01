@@ -6,7 +6,7 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 var now = Date.now();
 
-function writetofile(text) {
+function logger(text) {
     tdiff = Date.now() - now;
     now = Date.now();
     newtext = String(now) + ': ' + text + ' delay=' + String(tdiff) + '\n';
@@ -17,8 +17,6 @@ function writetofile(text) {
 	}
     }); 
 }
-
-writetofile("hello!");
 
 //only two for the moment
 var allClients = [null,null];
@@ -51,7 +49,7 @@ io.on('connection', function(socket){
 
     // receive new leap position, transmit to everyone
     socket.on('newposition', function(pos, userid){
-	writetofile("newpos");
+	//logger("newpos");
 	io.emit('update', pos, userid);
     });
 

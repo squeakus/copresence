@@ -8,7 +8,8 @@
     playing = false; //only 2 players allowed at the moment
     positions = [[],[]]; //holds all the players previous positions
     predictions = [[],[]]; // holds all the predictions
-
+    now = Date.now(); // current time in milliseconds
+    lastupdate = Date.now(); //last time other player sent an update 
     //This function is to scroll on the chat window
     window.setInterval(function() {
 	var elem = document.getElementById('chat');
@@ -63,8 +64,11 @@
 		x = Math.round(pos[0]);
 		y = Math.round(pos[1]);
 		z = Math.round(pos[2]);	
+
+		tdiff = Date.now() - lastupdate;
+		lastupdate = Date.now();		
 		
-		$('#user2loc').text("Position: "+userid+": x "+x+"y"+y);
+		$('#user2loc').text("Delay "+userid+": "+ String(tdiff));
 		player.push([x,y]);
 
 		// If there are enough positions make a prediction
@@ -90,6 +94,7 @@
     }
 
     function predict(queue) {
+	// basic moving average predictor
 	delta = [0,0,0];
 	for (i = 0; i < queue.length - 1; i++) {
 	    for (j = 0; j < queue[i].length; j++)
@@ -109,9 +114,8 @@
     }
 
     function drawcircle(position, color) {
+	// draw the circle for the leap location
 	ctx.strokeStyle = color;
-
-	// draw the circle where the pointable is
 	x = position[0] * 2;
 	y = position[1] * 2;
 	circx = x-radius/2;
@@ -157,7 +161,12 @@
 		x = Math.round(pos[0]);
 		y = Math.round(pos[1]);
 		z = Math.round(pos[2]);
-		$('#user1loc').text("Position: "+uid+": x "+x+" y "+y);
+		// check the leap lag
+		tdiff = Date.now() - now;
+		now = Date.now();		
+		//$('#user1loc').text("Position: "+uid+": x "+x+" y "+y);
+		$('#user1loc').text("Delay "+uid+": "+ String(tdiff));
+
 		drawcircle(pos, "rgba(0,0,255,0.9)")
 	    }
 	}
