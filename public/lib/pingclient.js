@@ -2,7 +2,7 @@
     uid = 0; // Unique ID for every user
     tdiff = 0;
     now = Date.now(); // current time in milliseconds
-    lastupdate = Date.now(); //last time other player sent an update   
+    pingsent = Date.now(); //last time other player sent an update   
     token = 0;
 
     function setupsockets() {    
@@ -14,8 +14,7 @@
 	});
 	
 	socket.on('pingack', function(data) {
-	    tdiff = Date.now() - lastupdate;
-	    lastupdate = Date.now();		
+	    tdiff = Date.now() - pingsent;
 
             $('#messages').append('<li> Ping reply: ' + data[0] + ' Time taken: '+tdiff+'</li>');
 	    if (!(token == data[0])){
@@ -28,9 +27,10 @@
     //This function is to scroll on the chat window
     window.setInterval(function() {
 	token = token + 1;
+	pingsent = Date.now();
 	socket.emit('ping', token , uid);
         $('#messages').append('<li>PING: ' + token + '</li>');
-    }, 3000);
+    }, 1000);
 
 
 })();

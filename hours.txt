@@ -11,3 +11,4 @@
 2015-05-07: 4 hours drawing both players and limited to two 
 2015-05-11: 4 hours now predicting second player
 2015-05-30: 4 hours starting time logging experiments
+2015-06-01: 3 hours wrote separate ping tester

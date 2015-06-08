@@ -6,6 +6,8 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 var now = Date.now();
 var playercount = 0;
+var last = 0;
+
 //all libraries, css go in the public folder
 app.use(express.static(__dirname + '/public'));
 
@@ -22,8 +24,12 @@ io.on('connection', function(socket){
 
     // receive new leap position, transmit to everyone
     socket.on('ping', function(token, uid){
-	console.log('ping from user ' + uid + ": " + token);
+	//console.log('ping from user ' + uid + ": " + token);
 	io.emit('pingack', [token, uid]);
+	if (token != (last + 1)){
+	    console.log('lost token!!! ' + uid + ": " + token);
+	}
+	last = token;
     });
 });
 
