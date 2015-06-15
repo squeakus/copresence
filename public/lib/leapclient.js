@@ -1,15 +1,18 @@
 (function(){
-    uid = 0; // Unique ID for every user
-    radius = 15; // radius of the user circle
-    predsample = 4; // how many past positions are used to predict
-    predmult = 2; // the multiplier for the change
-    drawpred = false; //draw the prediction rather than the position
-    trail = false; // draw a fancy trail behind the player
-    playing = false; //only 2 players allowed at the moment
-    positions = [[],[]]; //holds all the players previous positions
-    predictions = [[],[]]; // holds all the predictions
-    now = Date.now(); // current time in milliseconds
-    lastupdate = Date.now(); //last time other player sent an update 
+    'use strict';
+    var socket = null; // the communications channel with the server
+    var uid = 0; // Unique ID for every user
+    var radius = 15; // radius of the user circle
+    var predsample = 4; // how many past positions are used to predict
+    var predmult = 2; // the multiplier for the change
+    var lag = 0; // manually introduced lag
+    var drawpred = false; //draw the prediction rather than the position
+    var trail = false; // draw a fancy trail behind the player
+    var playing = false; //only 2 players allowed at the moment
+    var positions = [[],[]]; //holds all the players previous positions
+    var predictions = [[],[]]; // holds all the predictions
+    var now = Date.now(); // current time in milliseconds
+    var lastupdate = Date.now(); //last time other player sent an update 
     //This function is to scroll on the chat window
     window.setInterval(function() {
 	var elem = document.getElementById('chat');
@@ -17,12 +20,12 @@
     }, 1000);
     
     // get the canvas, 2d context, paragraph for data, set the radius
-    canvas = document.getElementsByTagName('canvas')[0];
-    ctx = canvas.getContext('2d');
+    var canvas = document.getElementsByTagName('canvas')[0];
+    var ctx = canvas.getContext('2d');
     ctx.fillStyle = "rgba(0,0,0,0.9)";
     ctx.lineWidth = 10;
 
-    info = document.getElementById('data');
+    var info = document.getElementById('data');
 
     // set the canvas to cover the screen
     canvas.width = document.getElementById('section').clientWidth;
@@ -113,13 +116,39 @@
 	return newpos;
     }
 
+    function polypredict(queue, axis){
+	// polynomial regression based predictor
+	// extract the axis and time you want to predict
+	var data = [];
+	for (var i = 0; i < queue.length - 1; i++) {
+	    data.push = [queue[axis], queue[2]]
+	}
+
+	
+	var polynomial = regression('polynomial', data, 3);
+	var eqn = polynomial.equation;
+	var x = 5;
+	var y = 0;
+	console.log("eqn:" + polynomial.string);
+	
+	for(var i = 0; i < eqn.length; i++)
+	{
+	    var result = (eqn[i] * (Math.pow(x,i)));
+	    console.log(eqn[i]+" "+ result);
+	    y = y + result;
+	}
+	
+	console.log("result:" + y);
+    }
+
+
     function drawcircle(position, color) {
 	// draw the circle for the leap location
 	ctx.strokeStyle = color;
-	x = position[0] * 2;
-	y = position[1] * 2;
-	circx = x-radius/2;
-	circy = -(y-radius/2);
+	var x = position[0] * 2;
+	var y = position[1] * 2;
+	var circx = x-radius/2;
+	var circy = -(y-radius/2);
 
 	// set the fill to white for the points
 	ctx.beginPath();
@@ -133,6 +162,14 @@
     };
 
     function draw(frame) {
+	var fps = frame.currentFrameRate;
+	$('#fps').text("fps "+fps);
+	$('#fid').text("frame id "+frame.id);
+
+	//do not read every frame
+	if(frame.id % 1 != 0){
+	    return;
+	}
 	// set up data array and other variables
 	var data = [],
         pos, i, len;
@@ -158,11 +195,11 @@
 		// get the pointable and its position
 		pos = frame.hands[i].palmPosition;
 		socket.emit('newposition', pos, uid);
-		x = Math.round(pos[0]);
-		y = Math.round(pos[1]);
-		z = Math.round(pos[2]);
+		var x = Math.round(pos[0]);
+		var y = Math.round(pos[1]);
+		var z = Math.round(pos[2]);
 		// check the leap lag
-		tdiff = Date.now() - now;
+		var tdiff = Date.now() - now;
 		now = Date.now();		
 		//$('#user1loc').text("Position: "+uid+": x "+x+" y "+y);
 		$('#user1loc').text("Delay "+uid+": "+ String(tdiff));
@@ -191,8 +228,19 @@
 		}
 	    }
 	}
+	sleep(lag);
     };
     
+    function sleep(milliseconds) {
+	var start = new Date().getTime();
+	for (var i = 0; i < 1e7; i++) {
+	    if ((new Date().getTime() - start) > milliseconds){
+		break;
+	    }
+	}
+    }
+
+
     function keylistener(){
 	document.addEventListener('keydown', function(event) {
 	    // right arrow increases the sample size
@@ -237,6 +285,20 @@
 		if (predmult > 0.5){
 		    predmult = predmult - 0.1;
 		    $('#messages').append('<li> Multiplier: '+predmult+'</li>');
+		}
+	    }
+
+	    // w increases the lag
+	    else if (event.keyCode == 87) {
+		lag = lag + 10;
+		$('#messages').append('<li> lag: '+lag+'</li>');
+	    }
+
+	    // s decreases the lag
+	    else if (event.keyCode == 83) {
+		if (lag > 0){
+		    lag = lag - 10;
+		    $('#messages').append('<li> lag: '+lag+'</li>');
 		}
 	    }
 

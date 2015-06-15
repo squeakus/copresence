@@ -12,3 +12,5 @@
 2015-05-11: 4 hours now predicting second player
 2015-05-30: 4 hours starting time logging experiments
 2015-06-01: 3 hours wrote separate ping tester
+2015-06-08: 2 hours analysing ping data and starting polynomial solver
+2015-06-15: 4 hours Implementing a dual polynomial solver to solve x and y independently

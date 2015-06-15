@@ -7,9 +7,9 @@ var fs = require('fs');
 var now = Date.now();
 
 function logger(text) {
-    tdiff = Date.now() - now;
+    var tdiff = Date.now() - now;
     now = Date.now();
-    newtext = String(now) + ': ' + text + ' delay=' + String(tdiff) + '\n';
+    var newtext = String(now) + ': ' + text + ' delay=' + String(tdiff) + '\n';
 
     fs.appendFile("log.txt", newtext, function(err) {
 	if(err) {
