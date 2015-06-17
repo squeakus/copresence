@@ -1,12 +1,12 @@
 (function(){
     'use strict';
     var socket = null; // the communications channel with the server
-    var uid = 0; // Unique ID for every user
+    var uid = null; // Unique ID for every user
     var radius = 15; // radius of the user circle
     var predsample = 4; // how many past positions are used to predict
     var predmult = 2; // the multiplier for the change
     var lag = 0; // manually introduced lag
-    var drawpred = false; //draw the prediction rather than the position
+    var predict = 0; //which prediction method to use (0 == none)
     var trail = false; // draw a fancy trail behind the player
     var playing = false; //only 2 players allowed at the moment
     var positions = [[],[]]; //holds all the players previous positions
@@ -65,30 +65,20 @@
 
 	socket.on('update', function(pos, userid) {
 	    if (!(uid == userid)){
-		var player = positions[userid];
+		// tidy the location data
 		var x = Math.round(pos[0]);
 		var y = Math.round(pos[1]);
 		var z = Math.round(pos[2]);	
 
-		var tdiff = Date.now() - lastupdate;
+
 		var currenttime = Date.now() - starttime;
-		lastupdate = Date.now();		
-		
+		// display the lag
+		var tdiff = Date.now() - lastupdate;
+		lastupdate = Date.now();				
 		//$('#user2loc').text("Delay "+userid+": "+ String(tdiff));
 		$('#user2loc').text("POS "+x+" "+y+" "+z);
+		var player = positions[userid];
 		player.push([x, y, currenttime]);
-
-		// If there are enough positions make a prediction
-		var poslen = player.length;
-
-		if( poslen > predsample){
-		    var samples = player.slice(poslen - predsample, 
-					      poslen);
-
-		    // use samples to draw next position
-		    var prediction = predict(samples);
-		    predictions[userid].push(prediction);
-		}
 	    }
 	});
     
@@ -165,17 +155,12 @@
 	ctx.stroke();
     }
 
-    function draw(frame) {
-	console.log("drawing");
-
+    function draw(controller) {
+	var frame =  controller.frame();
+	console.log("moo");
 	var fps = frame.currentFrameRate;
 	$('#fps').text("fps "+fps);
 	$('#fid').text("frame id "+frame.id);
-
-	//do not read every frame
-	//if(frame.id % 1 !== 0){
-	//   return;
-	//}
 
 	// set up data array and other variables
 	var data = [],pos, i, len;
@@ -213,12 +198,24 @@
 	    }
 	}
 
-
 	//draw the other players
+	sleep(lag); // silly lag
 	for(i=0; i < positions.length; i++) {
 	    if (i != uid){	    
+		var player =  positions[i];
 		// draw prediction in green
-		if (drawpred){		    
+		if (predict > 0){
+		    // If there are enough positions make a prediction
+		    var poslen = player.length;
+		    if( poslen > predsample){
+			var samples = player.slice(poslen - predsample, 
+						   poslen);
+			
+			// use samples to draw next position
+			var prediction = predict(samples);
+			predictions[userid].push(prediction);
+		    }
+		    
 		    if (predictions[i].length > 1){
 			player =  predictions[i];
 			pos = player[player.length -1];
@@ -228,14 +225,12 @@
 		// or draw last known position in red 
 		else{
 		    if (positions[i].length > 1){
-			var player =  positions[i];
 			var pos = player[player.length -1];
 			drawcircle(pos, "rgba(255,0,0,0.9)");
 		    }
 		}
 	    }
 	}
-	sleep(lag);
     }
     
     function sleep(milliseconds) {
@@ -311,14 +306,16 @@
 
 	    // p switches prediction 
 	    else if (event.keyCode == 80) {
-		drawpred = !(drawpred);
-		$('#messages').append('<li> Prediction: '+drawpred+'</li>');
+		predict = (predict + 1) % 3;
+		$('#messages').append('<li> Prediction: '+predict+'</li>');
 	    }
 	}, true);
     }
-    
     setupsockets();
     keylistener();
-    // run the animation loop with the draw command
-    Leap.loop(draw);
+
+    // connect to leap and draw
+    var controller = new Leap.Controller();
+    controller.connect();
+    setInterval(function() {draw(controller);}, 100);
 })();
