@@ -90,7 +90,7 @@
 	});
     }
 
-    function predict(queue) {
+    function linearpredict(queue) {
 	// basic moving average predictor
 	var delta = [0,0,0];
 	for (var i = 0; i < queue.length - 1; i++) {
@@ -122,18 +122,15 @@
 	
 	var polynomial = regression('polynomial', data, 3);
 	var eqn = polynomial.equation;
-	var x = 5;
+	var currenttime = Date.now() - starttime;
 	var y = 0;
-	console.log("eqn:" + polynomial.string);
-	
 	for(i = 0; i < eqn.length; i++)
 	{
-	    var result = (eqn[i] * (Math.pow(x,i)));
+	    var result = (eqn[i] * (Math.pow(currenttime, i)));
 	    console.log(eqn[i]+" "+ result);
 	    y = y + result;
 	}
-	
-	console.log("result:" + y);
+	return y;
     }
 
     function drawcircle(position, color) {
@@ -157,7 +154,6 @@
 
     function draw(controller) {
 	var frame =  controller.frame();
-	console.log("moo");
 	var fps = frame.currentFrameRate;
 	$('#fps').text("fps "+fps);
 	$('#fid').text("frame id "+frame.id);
@@ -185,7 +181,10 @@
 	    for (i=0, len=frame.hands.length; i<len; i++) {
 		// get the pointable and its position
 		pos = frame.hands[i].palmPosition;
+
+		//setInterval(function() {socket.emit('newposition', pos, uid);}, lag);
 		socket.emit('newposition', pos, uid);
+
 		var x = Math.round(pos[0]);
 		var y = Math.round(pos[1]);
 		var z = Math.round(pos[2]);
@@ -199,7 +198,6 @@
 	}
 
 	//draw the other players
-	sleep(lag); // silly lag
 	for(i=0; i < positions.length; i++) {
 	    if (i != uid){	    
 		var player =  positions[i];
@@ -212,8 +210,15 @@
 						   poslen);
 			
 			// use samples to draw next position
-			var prediction = predict(samples);
-			predictions[userid].push(prediction);
+			if (predict == 1){
+			    var prediction = linearpredict(samples);
+			}
+			if (predict == 2){
+			    var predx  = polypredict(samples,0);
+			    var predy  = polypredict(samples,1);
+			    var prediction = [predx, predy];
+			    }
+			predictions[i].push(prediction);
 		    }
 		    
 		    if (predictions[i].length > 1){
@@ -233,15 +238,14 @@
 	}
     }
     
-    function sleep(milliseconds) {
-	var start = new Date().getTime();
-	for (var i = 0; i < 1e7; i++) {
-	    if ((new Date().getTime() - start) > milliseconds){
-		break;
-	    }
-	}
-    }
-
+    // function sleep(milliseconds) {
+    // 	var start = new Date().getTime();
+    // 	for (var i = 0; i < 1e7; i++) {
+    // 	    if ((new Date().getTime() - start) > milliseconds){
+    // 		break;
+    // 	    }
+    // 	}
+    // }
 
     function keylistener(){
 	document.addEventListener('keydown', function(event) {
@@ -317,5 +321,5 @@
     // connect to leap and draw
     var controller = new Leap.Controller();
     controller.connect();
-    setInterval(function() {draw(controller);}, 100);
+    setInterval(function() {draw(controller);}, 20);
 })();
