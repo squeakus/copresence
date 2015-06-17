@@ -11,8 +11,10 @@
     var playing = false; //only 2 players allowed at the moment
     var positions = [[],[]]; //holds all the players previous positions
     var predictions = [[],[]]; // holds all the predictions
-    var now = Date.now(); // current time in milliseconds
-    var lastupdate = Date.now(); //last time other player sent an update 
+    var starttime = Date.now(); // current time in milliseconds
+    var now = starttime;
+    var lastupdate = starttime; //last time other player sent an update 
+
     //This function is to scroll on the chat window
     window.setInterval(function() {
 	var elem = document.getElementById('chat');
@@ -63,26 +65,28 @@
 
 	socket.on('update', function(pos, userid) {
 	    if (!(uid == userid)){
-		player = positions[userid];
-		x = Math.round(pos[0]);
-		y = Math.round(pos[1]);
-		z = Math.round(pos[2]);	
+		var player = positions[userid];
+		var x = Math.round(pos[0]);
+		var y = Math.round(pos[1]);
+		var z = Math.round(pos[2]);	
 
-		tdiff = Date.now() - lastupdate;
+		var tdiff = Date.now() - lastupdate;
+		var currenttime = Date.now() - starttime;
 		lastupdate = Date.now();		
 		
-		$('#user2loc').text("Delay "+userid+": "+ String(tdiff));
-		player.push([x,y]);
+		//$('#user2loc').text("Delay "+userid+": "+ String(tdiff));
+		$('#user2loc').text("POS "+x+" "+y+" "+z);
+		player.push([x, y, currenttime]);
 
 		// If there are enough positions make a prediction
-		poslen = player.length;
+		var poslen = player.length;
 
 		if( poslen > predsample){
-		    samples = player.slice(poslen - predsample, 
+		    var samples = player.slice(poslen - predsample, 
 					      poslen);
 
 		    // use samples to draw next position
-		    prediction = predict(samples);
+		    var prediction = predict(samples);
 		    predictions[userid].push(prediction);
 		}
 	    }
@@ -98,18 +102,20 @@
 
     function predict(queue) {
 	// basic moving average predictor
-	delta = [0,0,0];
-	for (i = 0; i < queue.length - 1; i++) {
-	    for (j = 0; j < queue[i].length; j++)
+	var delta = [0,0,0];
+	for (var i = 0; i < queue.length - 1; i++) {
+	    for (var j = 0; j < queue[i].length; j++){
 		delta[j] += queue[i][j] - queue[i+1][j];
+	    }
 	}
-	px = Math.round(delta[0] * 100) / 100;
-	py = Math.round(delta[1] * 100) / 100;
-	pz = Math.round(delta[2] * 100) / 100;
+
+	var px = Math.round(delta[0] * 100) / 100;
+	var py = Math.round(delta[1] * 100) / 100;
+	var pz = Math.round(delta[2] * 100) / 100;
         $('#prediction').text("Prediction x" + px + " y " + py + " z " + pz);
 
-	newpos = [0,0,0];
-	lastpos = queue[0];
+	var newpos = [0,0,0];
+	var lastpos = queue[0];
 	for (i = 0; i < lastpos.length; i ++){
 	    newpos[i] = lastpos[i] - ((delta[i])* predmult);
 	}
@@ -121,9 +127,8 @@
 	// extract the axis and time you want to predict
 	var data = [];
 	for (var i = 0; i < queue.length - 1; i++) {
-	    data.push = [queue[axis], queue[2]]
+	    data.push = [queue[axis], queue[2]];
 	}
-
 	
 	var polynomial = regression('polynomial', data, 3);
 	var eqn = polynomial.equation;
@@ -131,7 +136,7 @@
 	var y = 0;
 	console.log("eqn:" + polynomial.string);
 	
-	for(var i = 0; i < eqn.length; i++)
+	for(i = 0; i < eqn.length; i++)
 	{
 	    var result = (eqn[i] * (Math.pow(x,i)));
 	    console.log(eqn[i]+" "+ result);
@@ -140,7 +145,6 @@
 	
 	console.log("result:" + y);
     }
-
 
     function drawcircle(position, color) {
 	// draw the circle for the leap location
@@ -159,20 +163,22 @@
 	ctx.fill();
 	ctx.lineWidth = 4;
 	ctx.stroke();
-    };
+    }
 
     function draw(frame) {
+	console.log("drawing");
+
 	var fps = frame.currentFrameRate;
 	$('#fps').text("fps "+fps);
 	$('#fid').text("frame id "+frame.id);
 
 	//do not read every frame
-	if(frame.id % 1 != 0){
-	    return;
-	}
+	//if(frame.id % 1 !== 0){
+	//   return;
+	//}
+
 	// set up data array and other variables
-	var data = [],
-        pos, i, len;
+	var data = [],pos, i, len;
 	    
 	// cover the canvas with a 10% opaque layer for fade out effect
 	if(trail){
@@ -203,10 +209,11 @@
 		now = Date.now();		
 		//$('#user1loc').text("Position: "+uid+": x "+x+" y "+y);
 		$('#user1loc').text("Delay "+uid+": "+ String(tdiff));
-
-		drawcircle(pos, "rgba(0,0,255,0.9)")
+		drawcircle(pos, "rgba(0,0,255,0.9)");
 	    }
 	}
+
+
 	//draw the other players
 	for(i=0; i < positions.length; i++) {
 	    if (i != uid){	    
@@ -221,15 +228,15 @@
 		// or draw last known position in red 
 		else{
 		    if (positions[i].length > 1){
-			player =  positions[i];
-			pos = player[player.length -1];
+			var player =  positions[i];
+			var pos = player[player.length -1];
 			drawcircle(pos, "rgba(255,0,0,0.9)");
 		    }
 		}
 	    }
 	}
 	sleep(lag);
-    };
+    }
     
     function sleep(milliseconds) {
 	var start = new Date().getTime();
