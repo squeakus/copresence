@@ -70,7 +70,6 @@
 		var y = Math.round(pos[1]);
 		var z = Math.round(pos[2]);	
 
-
 		var currenttime = Date.now() - starttime;
 		// display the lag
 		var tdiff = Date.now() - lastupdate;
@@ -112,22 +111,25 @@
 	return newpos;
     }
 
-    function polypredict(queue, axis){
-	// polynomial regression based predictor
-	// extract the axis and time you want to predict
+    // polynomial regression based predictor, predicts one axis at a time.
+    function polypredict(queue, axis, currenttime){
+	degree = 3;
+	// extract the axis you want to predict from the sample data
 	var data = [];
-	for (var i = 0; i < queue.length - 1; i++) {
-	    data.push = [queue[axis], queue[2]];
+	for (var i = 0; i < queue.length; i++) {    
+	    var newcoord = [queue[i][2], queue[i][axis]];
+	    data.push(newcoord);
 	}
-	
-	var polynomial = regression('polynomial', data, 3);
+
+	// generate polynomial equation and use it to predict
+	var polynomial = regression('polynomial', data, degree);
 	var eqn = polynomial.equation;
-	var currenttime = Date.now() - starttime;
-	var y = 0;
+
+	console.log("eqn: " + polynomial.string);
+	var y = 0; // the equation defaults to y so we must use it
 	for(i = 0; i < eqn.length; i++)
 	{
 	    var result = (eqn[i] * (Math.pow(currenttime, i)));
-	    console.log(eqn[i]+" "+ result);
 	    y = y + result;
 	}
 	return y;
@@ -214,8 +216,10 @@
 			    var prediction = linearpredict(samples);
 			}
 			if (predict == 2){
-			    var predx  = polypredict(samples,0);
-			    var predy  = polypredict(samples,1);
+			    var ctime = Date.now() - starttime;
+			    var predx  = polypredict(samples, 0, ctime);
+			    var predy  = polypredict(samples, 1, ctime);
+			    console.log("time "+ ctime +"newx " + predx + " newy " + predy);
 			    var prediction = [predx, predy];
 			    }
 			predictions[i].push(prediction);
@@ -238,6 +242,7 @@
 	}
     }
     
+    // function to (poorly) simulate lag
     // function sleep(milliseconds) {
     // 	var start = new Date().getTime();
     // 	for (var i = 0; i < 1e7; i++) {
@@ -318,8 +323,16 @@
     setupsockets();
     keylistener();
 
+    //a polypredict test
+    //var data = [[100,10,1000],[200,20,2000],[300,30,3000],[400,40,4000]];
+    //var data = [[100,10,1],[200,20,2],[300,30,3],[400,40,4]];  
+    //var a = polypredict(data,0,5);
+    //var b = polypredict(data,1,5);
+    //console.log("RESULT: "+a+ " "+b);
+
     // connect to leap and draw
     var controller = new Leap.Controller();
     controller.connect();
+    // 20 milliseconds is 60fps
     setInterval(function() {draw(controller);}, 20);
 })();
