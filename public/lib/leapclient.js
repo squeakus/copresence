@@ -5,8 +5,9 @@
     var radius = 15; // radius of the user circle
     var predsample = 4; // how many past positions are used to predict
     var predmult = 2; // the multiplier for the change
+    var degree = 3; // degree of the predictive polynomial
     var lag = 0; // manually introduced lag
-    var predict = 0; //which prediction method to use (0 == none)
+    var predict = 0; //which predictor (0 = none, 1 = linear, 2 = polynomial)
     var trail = false; // draw a fancy trail behind the player
     var playing = false; //only 2 players allowed at the moment
     var positions = [[],[]]; //holds all the players previous positions
@@ -113,7 +114,6 @@
 
     // polynomial regression based predictor, predicts one axis at a time.
     function polypredict(queue, axis, currenttime){
-	degree = 3;
 	// extract the axis you want to predict from the sample data
 	var data = [];
 	for (var i = 0; i < queue.length; i++) {    
