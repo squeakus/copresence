@@ -18,3 +18,4 @@
 2015-06-17: 3 hours code fix and prediction
 2015-06-22: 1 hour debugging polynomial problem
 2015-06-23: 8 hours debugging polynomial problem
+2015-06-30: 4 hours Calling external predictors
