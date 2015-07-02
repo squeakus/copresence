@@ -1,7 +1,8 @@
-
 function linearpredict(queue) {
     // basic moving average predictor
     var delta = [0,0,0];
+    var predmult = 2; // the multiplier for the change
+
     for (var i = 0; i < queue.length - 1; i++) {
 	for (var j = 0; j < queue[i].length; j++){
 	    delta[j] += queue[i][j] - queue[i+1][j];
