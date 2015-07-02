@@ -164,7 +164,6 @@
 			    var ctime = Date.now() - starttime;
 			    var predx  = polypredict(samples, 0, ctime);
 			    var predy  = polypredict(samples, 1, ctime);
-			    console.log("x " + predx + " y " + predy + " t "+ ctime);
 			    var prediction = [predx, predy];
 			    }
 			predictions[i].push(prediction);
@@ -273,10 +272,10 @@
 
     //a polypredict test
     //var data = [[100,10,1000],[200,20,2000],[300,30,3000],[400,40,4000]];
-    var data = [[0,209,3703],[0,160,3901],[0,106,4102],[0,135,4306]];  
-    var a = polypredict(data,1,6959);
+    //var data = [[0,209,3703],[0,160,3901],[0,106,4102],[0,135,4306]];  
+    //var a = polypredict(data,1,6959);
     //var b = polypredict(data,1,5);
-    console.log("RESULT: "+a);
+    //console.log("RESULT:" + a);
 
     // connect to leap and draw
     var controller = new Leap.Controller();

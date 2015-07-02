@@ -1,4 +1,3 @@
-
 function linearpredict(queue) {
     // basic moving average predictor
     var delta = [0,0,0];
@@ -34,13 +33,13 @@ function polypredict(queue, axis, currenttime){
 	data.push(newcoord);
     }
 
-    console.log("data "+axis+":"+ data);
+    var tdiff = currenttime - data[0][-1];
+    console.log("timedifference :"+ tdiff);
     // generate polynomial equation and use it to predict
     var polynomial = regression('polynomial', data, degree);
     var eqn = polynomial.equation;
-
-    console.log("eqn "+axis+ ": " + polynomial.string);
     var y = 0; // the equation defaults to y so we must use it
+
     for(i = 0; i < eqn.length; i++)
     {
 	var result = (eqn[i] * (Math.pow(currenttime, i)));
