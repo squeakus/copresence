@@ -33,7 +33,7 @@ function polypredict(queue, axis, currenttime){
 	data.push(newcoord);
     }
 
-    var tdiff = currenttime - data[0][-1];
+    var tdiff = currenttime - data[0][data.length-1];
     console.log("timedifference :"+ tdiff);
     // generate polynomial equation and use it to predict
     var polynomial = regression('polynomial', data, degree);
