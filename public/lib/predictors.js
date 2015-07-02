@@ -25,7 +25,7 @@ function linearpredict(queue) {
 // polynomial regression based predictor, predicts one axis at a time.
 function polypredict(queue, axis, currenttime){
     // how many coefficients in the polynomial
-    var degree = 3;
+    var degree = 2;
 
     // extract the axis you want to predict from the sample data
     var data = [];
