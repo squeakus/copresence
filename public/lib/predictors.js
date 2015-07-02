@@ -34,7 +34,7 @@ function polypredict(queue, axis, currenttime){
 	data.push(newcoord);
     }
 
-    var tdiff = currenttime - data[0][data.length-1];
+    var tdiff = currenttime - data[data.length-1][0];
     if (tdiff > 100){
 	console.log("timedifference :"+ tdiff);
     }
