@@ -282,6 +282,6 @@
     controller.connect();
     // 20 milliseconds is 60fps
     setInterval(function() {draw(controller);}, 20);
-    setInterval(function() {sendupdate(controller);}, 50);
+    setInterval(function() {sendupdate(controller);}, 20);
 
 })();
