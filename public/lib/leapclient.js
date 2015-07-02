@@ -273,10 +273,10 @@
 
     //a polypredict test
     //var data = [[100,10,1000],[200,20,2000],[300,30,3000],[400,40,4000]];
-    var data = [[3703,209],[3901,160],[4102,106],[4306,135]];  
-    var a = polypredict(data,0,6959);
+    var data = [[0,3703,209],[0,3901,160],[0,4102,106],[0,4306,135]];  
+    var a = polypredict(data,1,6959);
     //var b = polypredict(data,1,5);
-    console.log("RESULT: "+b);
+    console.log("RESULT: "+a);
 
     // connect to leap and draw
     var controller = new Leap.Controller();
