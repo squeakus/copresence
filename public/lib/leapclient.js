@@ -190,7 +190,6 @@
     }
 
     function sendupdate(controller){
-	
 	var frame =  controller.frame();
 	for (var i=0, len=frame.hands.length; i<len; i++) {
 	    // get the pointable and its position
@@ -285,6 +284,6 @@
     controller.connect();
     // 20 milliseconds is 60fps
     setInterval(function() {draw(controller);}, 20);
-    setInterval(function() {sendupdate(controller);}, 100);
+    setInterval(function() {sendupdate(controller);}, 200);
 
 })();
