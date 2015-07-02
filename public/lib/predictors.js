@@ -1,7 +1,7 @@
+
 function linearpredict(queue) {
     // basic moving average predictor
     var delta = [0,0,0];
-    var predmult = 2; // the multiplier for the change
 
     for (var i = 0; i < queue.length - 1; i++) {
 	for (var j = 0; j < queue[i].length; j++){
@@ -25,7 +25,7 @@ function linearpredict(queue) {
 // polynomial regression based predictor, predicts one axis at a time.
 function polypredict(queue, axis, currenttime){
     // how many coefficients in the polynomial
-    degree = 3;
+    var degree = 3;
 
     // extract the axis you want to predict from the sample data
     var data = [];
