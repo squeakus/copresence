@@ -3,7 +3,7 @@
     var socket = null; // the communications channel with the server
     var uid = null; // Unique ID for every user
     var radius = 15; // radius of the user circle
-    var predsample = 10; // how many past positions are used to predict
+    var predsample = 4; // how many past positions are used to predict
     var predmult = 2; // the multiplier for the change
     var lag = 0; // manually introduced lag
     var predict = 0; //which predictor (0 = none, 1 = linear, 2 = polynomial)
@@ -160,6 +160,7 @@
 			if (predict == 1){
 			    var prediction = linearpredict(samples);
 			}
+
 			// polynomial predictor
 			if (predict == 2){
 			    var ctime = Date.now() - starttime;
