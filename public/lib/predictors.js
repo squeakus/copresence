@@ -34,11 +34,12 @@ function polypredict(queue, axis, currenttime){
 	data.push(newcoord);
     }
 
+    console.log("data "+axis+":"+ data);
     // generate polynomial equation and use it to predict
     var polynomial = regression('polynomial', data, degree);
     var eqn = polynomial.equation;
 
-    console.log("eqn: " + polynomial.string);
+    console.log("eqn "+axis+ ": " + polynomial.string);
     var y = 0; // the equation defaults to y so we must use it
     for(i = 0; i < eqn.length; i++)
     {

@@ -164,7 +164,6 @@
 			    var ctime = Date.now() - starttime;
 			    var predx  = polypredict(samples, 0, ctime);
 			    var predy  = polypredict(samples, 1, ctime);
-			    console.log("samples:"+ samples);
 			    console.log("x " + predx + " y " + predy + " t "+ ctime);
 			    var prediction = [predx, predy];
 			    }
