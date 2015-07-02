@@ -34,10 +34,6 @@ function polypredict(queue, axis, currenttime){
 	data.push(newcoord);
     }
 
-    var tdiff = currenttime - data[data.length-1][0];
-    if (tdiff > 100){
-	console.log("timedifference :"+ tdiff);
-    }
     // generate polynomial equation and use it to predict
     var polynomial = regression('polynomial', data, degree);
     var eqn = polynomial.equation;
@@ -48,5 +44,19 @@ function polypredict(queue, axis, currenttime){
 	var result = (eqn[i] * (Math.pow(currenttime, i)));
 	y = y + result;
     }
+    //and now for the debugging
+    var ldiff = Math.abs(y -  data[data.length-1][1]);
+    var tdiff = currenttime - data[data.length-1][0];
+
+    if (ldiff > 50){
+	console.log("ldiff: "+ldiff + " tdiff: "+ tdiff);
+	console.log("eqn: " + eqn + " t:" + currenttime + " y: " + y);
+
+    }
+
+
+
+
+
     return y;
 }
