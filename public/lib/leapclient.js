@@ -1,4 +1,3 @@
-
 (function(){
     'use strict';
     var socket = null; // the communications channel with the server
@@ -71,7 +70,6 @@
 		var x = Math.round(pos[0]);
 		var y = Math.round(pos[1]);
 		var z = Math.round(pos[2]);	
-
 		var currenttime = Date.now() - starttime;
 		// display the lag
 		var tdiff = Date.now() - lastupdate;
@@ -138,19 +136,10 @@
 	    // loop over both hands (we are only using one)
 	    for (i=0, len=frame.hands.length; i<len; i++) {
 		// get the pointable and its position
-		pos = frame.hands[i].palmPosition;
-
-		//setInterval(function() {socket.emit('newposition', pos, uid);}, lag);
-		socket.emit('newposition', pos, uid);
-
+		pos = frame.hands[i].palmPosition;		
 		var x = Math.round(pos[0]);
 		var y = Math.round(pos[1]);
 		var z = Math.round(pos[2]);
-		// check the leap lag
-		var tdiff = Date.now() - now;
-		now = Date.now();		
-		//$('#user1loc').text("Position: "+uid+": x "+x+" y "+y);
-		$('#user1loc').text("Delay "+uid+": "+ String(tdiff));
 		drawcircle(pos, "rgba(0,0,255,0.9)");
 	    }
 	}
@@ -159,6 +148,7 @@
 	for(i=0; i < positions.length; i++) {
 	    if (i != uid){	    
 		var player =  positions[i];
+
 		// draw prediction in green
 		if (predict > 0){
 		    // If there are enough positions make a prediction
@@ -171,16 +161,17 @@
 			if (predict == 1){
 			    var prediction = linearpredict(samples);
 			}
+			// polynomial predictor
 			if (predict == 2){
 			    var ctime = Date.now() - starttime;
 			    var predx  = polypredict(samples, 0, ctime);
 			    var predy  = polypredict(samples, 1, ctime);
-			    console.log("time "+ ctime +"newx " + predx + " newy " + predy);
 			    var prediction = [predx, predy];
 			    }
 			predictions[i].push(prediction);
 		    }
 		    
+		    // make sure there are enough predictions
 		    if (predictions[i].length > 1){
 			player =  predictions[i];
 			pos = player[player.length -1];
@@ -197,16 +188,19 @@
 	    }
 	}
     }
-    
-    // function to (poorly) simulate lag
-    // function sleep(milliseconds) {
-    // 	var start = new Date().getTime();
-    // 	for (var i = 0; i < 1e7; i++) {
-    // 	    if ((new Date().getTime() - start) > milliseconds){
-    // 		break;
-    // 	    }
-    // 	}
-    // }
+
+    function sendupdate(controller){
+	
+	var frame =  controller.frame();
+	for (var i=0, len=frame.hands.length; i<len; i++) {
+	    // get the pointable and its position
+	    var pos = frame.hands[i].palmPosition;		
+	    var x = Math.round(pos[0]);
+	    var y = Math.round(pos[1]);
+	    var z = Math.round(pos[2]);
+	    socket.emit('newposition', pos, uid);
+	}
+    }
 
     function keylistener(){
 	document.addEventListener('keydown', function(event) {
@@ -291,4 +285,6 @@
     controller.connect();
     // 20 milliseconds is 60fps
     setInterval(function() {draw(controller);}, 20);
+    setInterval(function() {sendupdate(controller);}, 100);
+
 })();
