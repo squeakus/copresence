@@ -1,19 +1,21 @@
+// basic moving average predictor
 function linearpredict(queue) {
-    // basic moving average predictor
-    var predmult = 1;
+    var predmult = 1;  // multiply result to push it further into the future
     var delta = [0,0,0];
-
+    
+    // calculate the deltas for each previous move
     for (var i = 0; i < queue.length - 1; i++) {
 	for (var j = 0; j < queue[i].length; j++){
 	    delta[j] += queue[i][j] - queue[i+1][j];
 	}
     }
-
+    
     var px = Math.round(delta[0] * 100) / 100;
     var py = Math.round(delta[1] * 100) / 100;
     var pz = Math.round(delta[2] * 100) / 100;
     $('#prediction').text("Prediction x" + px + " y " + py + " z " + pz);
 
+    // add the prediction deltas to the last position
     var newpos = [0,0,0];
     var lastpos = queue[0];
     for (i = 0; i < lastpos.length; i ++){
@@ -25,7 +27,7 @@ function linearpredict(queue) {
 // polynomial regression based predictor, predicts one axis at a time.
 function polypredict(queue, axis, currenttime){
     // how many coefficients in the polynomial
-    var degree = 2;
+    var degree = 3;
 
     // extract the axis you want to predict from the sample data
     var data = [];
@@ -48,15 +50,9 @@ function polypredict(queue, axis, currenttime){
     var ldiff = Math.abs(y -  data[data.length-1][1]);
     var tdiff = currenttime - data[data.length-1][0];
 
-    if (ldiff > 50){
+    if (ldiff > 20){
 	console.log("ldiff: "+ldiff + " tdiff: "+ tdiff);
-	console.log("eqn: " + eqn + " t:" + currenttime + " y: " + y);
-
+	console.log("{\"eqnstr\":\""+polynomial.string+"\",\"eqn\":\""+eqn+"\",\"t\":"+currenttime+",\"y\":"+y+",\"data\":["+data+"]}");
     }
-
-
-
-
-
     return y;
 }

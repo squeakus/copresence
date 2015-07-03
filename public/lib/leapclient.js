@@ -3,7 +3,7 @@
     var socket = null; // the communications channel with the server
     var uid = null; // Unique ID for every user
     var radius = 30; // radius of the user circle
-    var predsample = 3; // how many past positions are used to predict
+    var predsample = 4; // how many past positions are used to predict
     var predict = 0; //which predictor (0 = none, 1 = linear, 2 = polynomial)
     var trail = false; // draw a fancy trail behind the player
     var playing = false; //only 2 players allowed at the moment
