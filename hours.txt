@@ -20,3 +20,7 @@
 2015-06-23: 8 hours debugging polynomial problem
 2015-06-30: 4 hours Calling external predictors
 2015-07-02: 8 hours debugging with fred
+2015-07-03: 3 hours graphing the prediction behaviour
+2015-07-05: 4 hours reimplementing polynomial for graphing results
+2015-07-05: 3 hours investigating numeric.js and everpolate as alternative solvers
+2015-07-14: 1 hour investigating jxsgraph polynomial library

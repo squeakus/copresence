@@ -49,10 +49,10 @@ function polypredict(queue, axis, currenttime){
     //and now for the debugging
     var ldiff = Math.abs(y -  data[data.length-1][1]);
     var tdiff = currenttime - data[data.length-1][0];
-
-    if (ldiff > 20){
-	console.log("ldiff: "+ldiff + " tdiff: "+ tdiff);
-	console.log("{\"eqnstr\":\""+polynomial.string+"\",\"eqn\":\""+eqn+"\",\"t\":"+currenttime+",\"y\":"+y+",\"data\":["+data+"]}");
+    if (tdiff < 1000){
+	if (axis == 0){
+	    console.log("{\"eqnstr\":\""+polynomial.string+"\",\"eqn\":\""+eqn+"\",\"t\":"+currenttime+",\"y\":"+y+",\"data\":["+data+"]}");
+	}
     }
     return y;
 }
