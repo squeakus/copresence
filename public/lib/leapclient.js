@@ -276,10 +276,12 @@
     //var a = polypredict(data,1,6959);
     //var b = polypredict(data,1,5);
     //console.log("RESULT:" + a);
+    //var regressionPolynomial = JXG.Math.Numerics.regressionPolynomial(3, [1,2,3,4,5], [1,1,2,3,4]);
+    var retval = poly.parse_results();
+    
 
-    var regressionPolynomial = JXG.Math.Numerics.regressionPolynomial(3, [1,2,3,4,5], [1,1,2,3,4]);
 
-    console.log("polynom:" + regressionPolynomial)
+    console.log("polynom:" + retval)
     // connect to leap and draw
     var controller = new Leap.Controller();
     controller.connect();

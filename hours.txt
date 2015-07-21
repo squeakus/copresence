@@ -24,3 +24,4 @@
 2015-07-05: 4 hours reimplementing polynomial for graphing results
 2015-07-05: 3 hours investigating numeric.js and everpolate as alternative solvers
 2015-07-14: 1 hour investigating jxsgraph polynomial library
+2015-07-14: 2 hours arachnoid dead end, going with ruby example

@@ -27,5 +27,9 @@ for j in range(10):
     #add some new positions and recalc predictor
     x = np.append(x,x[-1]+10)
     y = np.append(y,y[-1] + random.uniform(-0.2, 0.2))
+    #y = np.append(y,y[-1] + 0.05)
     z = np.polyfit(x[-4:], y[-4:], 3)
     p = np.poly1d(z)
+
+print x
+print y
