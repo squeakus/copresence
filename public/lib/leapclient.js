@@ -3,6 +3,7 @@
     var socket = null; // the communications channel with the server
     var uid = null; // Unique ID for every user
     var radius = 30; // radius of the user circle
+    var predictors = ["None", "Linear", "Weighted", "polynomial","scaledpoly"]
     var predsample = 4; // how many past positions are used to predict
     var predict = 0; //which predictor (0 = none, 1 = linear, 2 = polynomial)
     var trail = false; // draw a fancy trail behind the player
@@ -159,13 +160,27 @@
 			    var prediction = linearpredict(samples);
 			}
 
-			// polynomial predictor
 			if (predict == 2){
+			    var prediction = weightedpredict(samples);
+			}
+
+			// polynomial predictor
+			if (predict == 3){
 			    var ctime = Date.now() - starttime;
 			    var predx  = polypredict(samples, 0, ctime);
 			    var predy  = polypredict(samples, 1, ctime);
 			    var prediction = [predx, predy];
 			    }
+
+			// scaled polynomial predictor
+			if (predict == 4){
+			    var ctime = Date.now() - starttime;
+			    var predx  = scaledpredict(samples, 0, ctime);
+			    var predy  = scaledpredict(samples, 1, ctime);
+			    var prediction = [predx, predy];
+			    }
+
+
 			predictions[i].push(prediction);
 		    }
 		    
@@ -262,8 +277,8 @@
 
 	    // p switches prediction 
 	    else if (event.keyCode == 80) {
-		predict = (predict + 1) % 3;
-		$('#messages').append('<li> Prediction: '+predict+'</li>');
+		predict = (predict + 1) % 5;
+		$('#messages').append('<li> Prediction: '+predictors[predict]+'</li>');
 	    }
 	}, true);
     }
@@ -276,12 +291,7 @@
     //var a = polypredict(data,1,6959);
     //var b = polypredict(data,1,5);
     //console.log("RESULT:" + a);
-    //var regressionPolynomial = JXG.Math.Numerics.regressionPolynomial(3, [1,2,3,4,5], [1,1,2,3,4]);
-    var retval = poly.parse_results();
     
-
-
-    console.log("polynom:" + retval)
     // connect to leap and draw
     var controller = new Leap.Controller();
     controller.connect();
