@@ -218,7 +218,12 @@
 	var frame =  controller.frame();
 	for (var i=0, len=frame.hands.length; i<len; i++) {
 	    // get the pointable and its position
-	    var pos = frame.hands[i].palmPosition;		
+	    if (finger == true){ 
+		var pos = frame.hands[i].indexFinger.dipPosition;
+	    }
+	    else{
+		var pos = frame.hands[i].palmPosition;
+	    }
 	    var x = Math.round(pos[0]);
 	    var y = Math.round(pos[1]);
 	    var z = Math.round(pos[2]);
