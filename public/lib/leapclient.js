@@ -65,6 +65,13 @@
 	    predict = data;
 	    $('#messages').append('<li> Prediction: '+predictors[predict]+'</li>');
 	});
+
+	socket.on('lagchange', function(data) {
+	    console.log("changed lag");
+	    lag = data;
+	    $('#messages').append('<li> Lag: '+ data+'</li>');
+	});
+
 	
 	socket.on('message', function(data) {
             $('#messages').append('<li>' + data + '</li>');
@@ -289,14 +296,14 @@
 	    // w increases the lag
 	    else if (event.keyCode == 87) {
 		lag = lag + 10;
-		$('#messages').append('<li> lag: '+lag+'</li>');
+		socket.emit('lagchange', lag);
 	    }
 
 	    // s decreases the lag
 	    else if (event.keyCode == 83) {
 		if (lag > 0){
 		    lag = lag - 10;
-		    $('#messages').append('<li> lag: '+lag+'</li>');
+		    socket.emit('lagchange', lag);
 		}
 	    }
 

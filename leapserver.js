@@ -62,10 +62,16 @@ io.on('connection', function(socket){
 	io.emit('message', "user " + uid + ": "+ msg);
     });
 
-    // If comeone changes the predictor
+    // If someone changes the predictor
     socket.on('predictor', function(data){
 	console.log('predictor changed to '+ data);
 	io.emit('predictor', data);
+    });
+
+    // If someone changes the lag value
+    socket.on('lagchange', function(data){
+	console.log('lag changed to '+ data);
+	io.emit('lagchange', data);
     });
 
 
