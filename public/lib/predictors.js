@@ -89,8 +89,6 @@ function polypredict(queue, axis, currenttime){
     // 	    console.log("{\"eqnstr\":\""+polynomial.string+"\",\"eqn\":\""+eqn+"\",\"t\":"+currenttime+",\"y\":"+y+",\"data\":["+data+"]}");
     // 	}
     // }
-
-    console.log("Data: "+data+ " y: "+y);
     return y;
 }
 
@@ -130,10 +128,10 @@ function scaledpredict(queue, axis, currenttime){
     }
     ydiff = y - queue[queue.length-1][axis];
     
+    // if it is 4 times bigger than the largest previous change, limit it.
     var bigmult = biggest * 4;
-    if (ydiff > bigmult){
-	console.log("crazy: "+ biggest  + " ydiff: " + ydiff);
 
+    if (ydiff > bigmult){
 	if (ydiff > 0){
 	    y = queue[queue.length-1][axis] + bigmult;
 	}

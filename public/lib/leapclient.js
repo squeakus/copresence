@@ -6,6 +6,7 @@
     var predictors = ["None", "Linear", "Weighted", "polynomial","scaledpoly"]
     var predsample = 4; // how many past positions are used to predict
     var predict = 0; //which predictor (0 = none, 1 = linear, 2 = polynomial)
+    var lag = 0;
     var trail = false; // draw a fancy trail behind the player
     var playing = false; //only 2 players allowed at the moment
     var positions = [[],[]]; //holds all the players previous positions
@@ -56,6 +57,12 @@
 	
 	socket.on('player left', function(data) {
             $('#messages').append('<li> Player ' + data + ' left</li>');
+	});
+
+	socket.on('predictor', function(data) {
+	    console.log("changed predictor");
+	    predict = data;
+	    $('#messages').append('<li> Prediction: '+predictors[predict]+'</li>');
 	});
 	
 	socket.on('message', function(data) {
@@ -180,7 +187,6 @@
 			    var prediction = [predx, predy];
 			    }
 
-
 			predictions[i].push(prediction);
 		    }
 		    
@@ -210,7 +216,8 @@
 	    var x = Math.round(pos[0]);
 	    var y = Math.round(pos[1]);
 	    var z = Math.round(pos[2]);
-	    socket.emit('newposition', pos, uid);
+	    setTimeout(function(){socket.emit('newposition', pos, uid);},lag);
+	    //socket.emit('newposition', pos, uid);
 	}
     }
 
@@ -278,6 +285,7 @@
 	    // p switches prediction 
 	    else if (event.keyCode == 80) {
 		predict = (predict + 1) % 5;
+		socket.emit('predictor', predict);
 		$('#messages').append('<li> Prediction: '+predictors[predict]+'</li>');
 	    }
 	}, true);

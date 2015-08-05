@@ -29,3 +29,6 @@
 2015-07-20: 2 hours weighted moving average now complete and debugged
 2015-07-20: 1 hour reimplementing it in javascript client
 2015-07-20: 2 hours debugging javascript client and adding movement restriction
+2015-07-20: 1 hour starting to add fingers as focal point
+
+
