@@ -5,11 +5,23 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
 var now = Date.now();
+var record = false;
 
-function logger(text) {
+function laglogger(text) {
     var tdiff = Date.now() - now;
     now = Date.now();
-    var newtext = String(now) + ': ' + text + ' delay=' + String(tdiff) + '\n';
+    var newtext = String(now) + ': ' + text + ' delay=' + String(tdiff)+'\n';
+
+    fs.appendFile("lag.txt", newtext, function(err) {
+	if(err) {
+            return console.log(err);
+	}
+    }); 
+}
+
+function log(text) {
+    now = Date.now();
+    var newtext = String(now) + ';' + text;
 
     fs.appendFile("log.txt", newtext, function(err) {
 	if(err) {
@@ -74,6 +86,19 @@ io.on('connection', function(socket){
 	io.emit('lagchange', data);
     });
 
+    // Turn on/off data logging
+    socket.on('record', function(){
+	record = !(record);
+	io.emit('message', "recording = "+record);
+	console.log('recording status: '+ record);
+    });
+
+    // info to write to file
+    socket.on('loginfo', function(data){
+	if (record){
+	    log(data);
+	}
+    });
 
     // decrement users on disconnect
     socket.on('disconnect', function() {

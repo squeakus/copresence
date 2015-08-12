@@ -71,7 +71,6 @@
 	    lag = data;
 	    $('#messages').append('<li> Lag: '+ data+'</li>');
 	});
-
 	
 	socket.on('message', function(data) {
             $('#messages').append('<li>' + data + '</li>');
@@ -179,7 +178,8 @@
 			if (predict == 1){
 			    var prediction = linearpredict(samples);
 			}
-
+			
+			// weighted linear predictor
 			if (predict == 2){
 			    var prediction = weightedpredict(samples);
 			}
@@ -204,21 +204,28 @@
 		    }
 		    
 		    // make sure there are enough predictions
-		    if (predictions[i].length > 1){
+		    if (predictions[i].length > 0){
 			player =  predictions[i];
-			pos = player[player.length -1];
-			drawcircle(pos, "rgba(0,255,0,0.9)");
+			var otherpos = player[player.length -1];
+			drawcircle(otherpos, "rgba(0,255,0,0.9)");
 		    }
 		}
 		// or draw last known position in red 
 		else{
-		    if (positions[i].length > 1){
-			var pos = player[player.length -1];
-			drawcircle(pos, "rgba(255,0,0,0.9)");
+		    if (positions[i].length > 0){
+			var otherpos = player[player.length -1];
+			drawcircle(otherpos, "rgba(255,0,0,0.9)");
 		    }
 		}
+		loginfo(pos,player[player.length -1],predict, otherpos);
 	    }
 	}
+    }
+
+    //sends info to server to record
+    function loginfo (pos,otherpos,predictor,pred){
+	var info = uid+';'+pos+';'+lag+';'+ otherpos+';'+predictor+';'+pred+"\n";
+	socket.emit('loginfo', info);
     }
 
     function sendupdate(controller){
@@ -246,15 +253,13 @@
 		predsample = predsample + 1;
 		$('#messages').append('<li> samples: '+predsample+'</li>');
 	    }
-
 	    // left arrow reduces the sample size
 	    else if (event.keyCode == 37) {
 		if (predsample > 1){
 		    predsample = predsample - 1;
-		    $('#messages').append('<li> samples: '+predsample+'</li>');
+		    $('#messages').append('<li>samples: '+predsample+'</li>');
 		}
 	    }
-
 	    // up arrow increase circle size
 	    else if (event.keyCode == 38) {
 		if (radius < 50){
@@ -271,34 +276,28 @@
 	    else if (event.keyCode == 84) {
 		trail = !(trail);
 	    }
-
 	    // f switches between finger
 	    else if (event.keyCode == 70) {
 		finger = !(finger);
-		$('#messages').append('<li> Tracking finger = '+finger+'</li>');
-
+		$('#messages').append('<li>Tracking finger= '+finger+'</li>');
 	    }
-
 	    // plus(+) increases the prediction multiplier
 	    else if (event.keyCode == 107) {
 		predmult = predmult + 0.1;
 		$('#messages').append('<li> Multiplier: '+predmult+'</li>');
 	    }
-
 	    // minus(-) decreases the prediction multiplier
 	    else if (event.keyCode == 109) {
 		if (predmult > 0.5){
 		    predmult = predmult - 0.1;
-		    $('#messages').append('<li> Multiplier: '+predmult+'</li>');
+		    $('#messages').append('<li>Multiplier:'+predmult+'</li>');
 		}
 	    }
-
 	    // w increases the lag
 	    else if (event.keyCode == 87) {
 		lag = lag + 10;
 		socket.emit('lagchange', lag);
 	    }
-
 	    // s decreases the lag
 	    else if (event.keyCode == 83) {
 		if (lag > 0){
@@ -306,7 +305,10 @@
 		    socket.emit('lagchange', lag);
 		}
 	    }
-
+	    // r turns on recording.
+	    else if (event.keyCode == 82) {
+		socket.emit('record');
+	    }
 	    // p switches prediction 
 	    else if (event.keyCode == 80) {
 		predict = (predict + 1) % 5;
@@ -330,6 +332,5 @@
     // 20 milliseconds is 60fps
     setInterval(function() {draw(controller);}, 20);
     setInterval(function() {sendupdate(controller);}, 20);
-
 })()
 ;
