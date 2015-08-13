@@ -30,6 +30,7 @@
 2015-07-23: 1 hour reimplementing it in javascript client
 2015-07-24: 2 hours debugging javascript client and adding movement restriction
 2015-07-28: 1 hour starting to add fingers as focal point
+2015-08-03: 4 weighted and scaled predictors working
 2015-08-04: 4 hours adding lag and switches for fingers
 2015-08-05: 6 hours testing and now focusing on logging data
 2015-08-12: 4 hours implementing server sidelogging

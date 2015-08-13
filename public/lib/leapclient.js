@@ -76,6 +76,13 @@
             $('#messages').append('<li>' + data + '</li>');
 	});
 
+	socket.on('recording', function(data) {
+	    var starttime = Date.now(); 
+	    var now = starttime;
+	    var lastupdate = starttime;  
+	    $('#messages').append('<li>' + data + '</li>');
+	});
+
 	socket.on('update', function(pos, userid) {
 	    if (!(uid == userid)){
 		// tidy the location data
@@ -217,6 +224,9 @@
 			drawcircle(otherpos, "rgba(255,0,0,0.9)");
 		    }
 		}
+		if (pos == undefined){
+		    pos = x;
+		}
 		loginfo(pos,player[player.length -1],predict, otherpos);
 	    }
 	}
@@ -228,6 +238,7 @@
 	socket.emit('loginfo', info);
     }
 
+    //broadcasts position to other players, implements fake lag
     function sendupdate(controller){
 	var frame =  controller.frame();
 	for (var i=0, len=frame.hands.length; i<len; i++) {
