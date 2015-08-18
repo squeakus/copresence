@@ -4,9 +4,12 @@ var path = require('path');
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
+var starttime = Date.now();
 var now = Date.now();
+var logname = "log-"+now+".txt"
 var record = false;
 
+// used exclusively to record lag between clients
 function laglogger(text) {
     var tdiff = Date.now() - now;
     now = Date.now();
@@ -19,11 +22,13 @@ function laglogger(text) {
     }); 
 }
 
+// logs all information from a client: servertime, clienttime, player, position, lag, last known, predictor, prediction
 function log(text) {
-    now = Date.now();
+
+    now = Date.now() - starttime;
     var newtext = String(now) + ';' + text;
 
-    fs.appendFile("log.txt", newtext, function(err) {
+    fs.appendFile(logname, newtext, function(err) {
 	if(err) {
             return console.log(err);
 	}
@@ -89,8 +94,11 @@ io.on('connection', function(socket){
     // Turn on/off data logging
     socket.on('record', function(){
 	record = !(record);
-	io.emit('message', "recording = "+record);
-	console.log('recording status: '+ record);
+	io.emit('recording',record);
+	starttime = Date.now();
+	now = Date.now();
+	logname = "log-"+now+".txt"
+	console.log('recording: '+ record + " to log:"+logname );
     });
 
     // info to write to file

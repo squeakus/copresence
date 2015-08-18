@@ -15,6 +15,7 @@
     var starttime = Date.now(); // current time in milliseconds
     var now = starttime;
     var lastupdate = starttime; //last time other player sent an update 
+    var recording = false;
 
     //This function is to scroll on the chat window
     window.setInterval(function() {
@@ -77,10 +78,11 @@
 	});
 
 	socket.on('recording', function(data) {
-	    var starttime = Date.now(); 
-	    var now = starttime;
-	    var lastupdate = starttime;  
-	    $('#messages').append('<li>' + data + '</li>');
+	    recording = data;
+	    starttime = Date.now(); 
+	    now = starttime;
+	    lastupdate = starttime;
+	    $('#messages').append('<li> Recording=' + data + '</li>');
 	});
 
 	socket.on('update', function(pos, userid) {
@@ -227,14 +229,17 @@
 		if (pos == undefined){
 		    pos = x;
 		}
-		loginfo(pos,player[player.length -1],predict, otherpos);
+		var logtime = Date.now() - starttime;
+		if (recording){
+		    loginfo(logtime,pos,player[player.length-1],predict,otherpos);
+		}
 	    }
 	}
     }
 
     //sends info to server to record
-    function loginfo (pos,otherpos,predictor,pred){
-	var info = uid+';'+pos+';'+lag+';'+ otherpos+';'+predictor+';'+pred+"\n";
+    function loginfo (logtime, pos,otherpos,predictor,pred){
+	var info = +logtime+';'+uid+';'+pos+';'+lag+';'+ otherpos+';'+predictor+';'+pred+"\n";
 	socket.emit('loginfo', info);
     }
 

@@ -34,3 +34,4 @@
 2015-08-04: 4 hours adding lag and switches for fingers
 2015-08-05: 6 hours testing and now focusing on logging data
 2015-08-12: 4 hours implementing server sidelogging
+2015-08-14: 1 hour started synchronising clocks
