@@ -36,3 +36,4 @@
 2015-08-12: 4 hours implementing server sidelogging
 2015-08-14: 1 hour started synchronising clocks
 2015-08-18: 4 hours now client, server and logger all synchronised
+2015-08-24: 5 hours, graphing positions and difference between players
