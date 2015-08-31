@@ -1,7 +1,18 @@
 import pylab as P
+import numpy as np
+import sys
+
+SHOWGRAPH = True
 
 def main():
-    logfile = open('testlog.txt','r')
+    # User must specify which log
+    if len(sys.argv) != 2:
+        print "uasge: python parselog.py <logname>"
+        exit()
+    logname = sys.argv[1].rstrip('.txt')
+    logfile = open(sys.argv[1],'r')
+
+    # Here is what the columns define
     columns = ['servertime', 'clienttime', 'player', 'position', 'lag', 'lastknown', 'predictor', 'prediction']
     predictors = ["None", "Linear", "Weighted", "polynomial", "scaledpoly"]
 
@@ -32,6 +43,8 @@ def main():
         if player == 0:
             # if no player position info then use previous value
             if line[3] == 'undefined':
+                #player1['posx'].append(np.nan)
+                #player1['posy'].append(np.nan)
                 player1['posx'].append(player1['posx'][-1])
                 player1['posy'].append(player1['posy'][-1])
             else:
@@ -42,6 +55,9 @@ def main():
 
         if player == 1:
             if line[3] == 'undefined':
+                #player2['posx'].append(np.nan)
+                #player2['posy'].append(np.nan)
+                
                 player2['posx'].append(player2['posx'][-1])
                 player2['posy'].append(player2['posy'][-1])
             else:
@@ -53,8 +69,8 @@ def main():
 
     print "p1", len(player1['posx'])
     print "p2", len(player2['posx'])
-    #plotpositions(player1, player2)
-    plotchangerate(player1, player2)
+    plotpositions(player1, player2)
+    #plotchangerate(player1, player2)
 
 def plotchangerate(p1,p2):
     p1time = []
@@ -91,9 +107,10 @@ def plotchangerate(p1,p2):
 def plotpositions(p1, p2):
     P.plot(p1['posx'], p1['posy'], label='Player 1', linewidth=2)
     P.plot(p2['posx'], p2['posy'], label='Player 2', linewidth=2)
-
-    #P.axis([0, 10, 0, 10])
+    
+    P.title("Player positions")
     P.legend()
+    P.savefig("nonan.png")
     P.show()
     P.figure()
 
