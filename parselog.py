@@ -1,4 +1,5 @@
 import pylab as P
+import numpy as np
 import sys
 
 SHOWGRAPH = True #Show graphs after saving to a file
@@ -15,14 +16,17 @@ def main():
     columns = ['servertime', 'clienttime', 'player', 'position', 'lag', 'lastknown', 'predictor', 'prediction']
     predictors = ["None", "Linear", "Weighted", "polynomial", "scaledpoly"]
     lag = None
-    predictor = None
+    predictor = "None"
 
     #dictionary stores player information
-    player1 = {'time':[], 'posx':[], 'posy':[],}
-    player2 = {'time':[], 'posx':[], 'posy':[],}
+    player1 = {'time':[], 'posx':[], 'posy':[], 'vecx':[0], 'vecy':[], 
+               'last':[], 'pred':[]}
+    player2 = {'time':[], 'posx':[], 'posy':[], 'vecx':[0], 'vecy':[],
+               'last':[], 'pred':[]}
 
+    linecount = 0
     for line in logfile:
-
+        linecount += 1
         line = line.split(';')
         player = int(line[2])
 
@@ -36,35 +40,48 @@ def main():
             predictor = predictors[int(line[6])]
             print "Predictor being used is: ", predictor
 
-
         # parse info for each player separately
         if player == 0:
-
+            player1['time'].append(int(line[1]))
             # if no player position info then use previous value
             if line[3] == 'undefined':
                 player1['posx'].append(float('nan'))
                 player1['posy'].append(float('nan'))
             else:
-                position = [int(round(float(x),0)) for x in line[3].split(",")]
+                position =[int(round(float(x),0)) for x in line[3].split(',')]
+                if linecount > 1:
+                    #calculate the vectors first
+                    player1['vecx'].append(position[0] - player1['posx'][-1])
+                    player1['vecy'].append(position[1] - player1['posy'][-1])
+
                 player1['posx'].append(position[0])
                 player1['posy'].append(position[1])
-            player1['time'].append(int(line[1]))
+
 
         if player == 1:
+            player2['time'].append(int(line[1]))
             if line[3] == 'undefined':
                 player2['posx'].append(float('nan'))
                 player2['posy'].append(float('nan'))
             else:
-                position = [int(round(float(x),0)) for x in line[3].split(",")]
+                position=[int(round(float(x),0)) for x in line[3].split(",")]
                 player2['posx'].append(position[0])
                 player2['posy'].append(position[1])
-            player2['time'].append(int(line[1]))
 
-
+    # Each pplayer may have a different number of points
     print "p1 data points:", len(player1['posx'])
     print "p2 data points:", len(player2['posx'])
+
+    # plot the knowns
     plotpositions(logname, player1, player2)
     plotchangerate(logname, player1, player2)
+    plothistogram(logname, player1, "Player 1 X distributions", "_xhist.png")
+    #plothistogram(logname, player1, "Player 1 X distributions", "_xhist.png")
+
+    if not predictor == "None":
+        print "plotting prediction error"
+    else:
+        print "no prediction to plot" 
 
 def plotchangerate(logname, p1, p2):
     p1time = []
@@ -99,22 +116,35 @@ def plotchangerate(logname, p1, p2):
     if SHOWGRAPH:
         P.show()
 
+def plothistogram(logname, p1, title, filename):
+    vals = [x for x in p1['vecx'] if str(x) != 'nan']
+    n, bins, patches = P.hist(vals, 50, histtype='stepfilled')
+
+    P.title(title)
+    P.xlabel('X Coordinate vals')
+    P.ylabel('Frequency')
+    P.savefig(logname+filename)
+    if SHOWGRAPH:
+        P.show()
+
 def ploterror(logname, p1, p2):
+    
+    time = []
+    error = []
+    
     P.plot(p1['posx'], p1['posy'], label='Player 1', linewidth=2)
     P.plot(p2['posx'], p2['posy'], label='Player 2', linewidth=2)
 
-    P.title("Player positions")
+    P.title("Summed Prediction Error")
     P.xlabel('X Coordinate')
     P.ylabel('Y Coordinate')
-
     P.legend()
     P.savefig(logname+"_positions.png")
 
     if SHOWGRAPH:
         P.show()
 
-
-# show positions during recording
+# show player positions during recording
 def plotpositions(logname, p1, p2):
     P.plot(p1['posx'], p1['posy'], label='Player 1', linewidth=2)
     P.plot(p2['posx'], p2['posy'], label='Player 2', linewidth=2)

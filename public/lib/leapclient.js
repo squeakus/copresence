@@ -239,7 +239,7 @@
 
     //sends info to server to record
     function loginfo (logtime, pos,otherpos,predictor,pred){
-	var info = +logtime+';'+uid+';'+pos+';'+lag+';'+ otherpos+';'+predictor+';'+pred+"\n";
+	var info = logtime+';'+uid+';'+pos+';'+lag+';'+ otherpos+';'+predictor+';'+pred+"\n";
 	socket.emit('loginfo', info);
     }
 
