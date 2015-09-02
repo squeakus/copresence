@@ -24,9 +24,7 @@ def main():
     player2 = {'time':[], 'posx':[], 'posy':[], 'vecx':[0], 'vecy':[],
                'last':[], 'pred':[]}
 
-    linecount = 0
     for line in logfile:
-        linecount += 1
         line = line.split(';')
         player = int(line[2])
 
@@ -42,59 +40,51 @@ def main():
 
         # parse info for each player separately
         if player == 0:
-            player1['time'].append(int(line[1]))
-            # if no player position info then use previous value
-            if line[3] == 'undefined':
-                player1['posx'].append(float('nan'))
-                player1['posy'].append(float('nan'))
-            else:
-                position=[int(round(float(x),0)) for x in line[3].split(',')]
-                #we need a position before we calculate vector change
-                if linecount > 1:
-                    #calculate the vectors BEFORE appending position
-                    player1['vecx'].append(position[0] - player1['posx'][-1])
-                    player1['vecy'].append(position[1] - player1['posy'][-1])
+            print "player1"
+            parseline(player1, line)
 
-                player1['posx'].append(position[0])
-                player1['posy'].append(position[1])
-
-            lastknown=[round(float(x),0) for x in line[5].split(',')]
-            pred=[round(float(x),0) for x in line[7].split(',')]
-
-            player1['last'].append(lastknown[:-1])
-            player1['pred'].append(pred)
-
-        # Parse second player
         if player == 1:
-            player2['time'].append(int(line[1]))
-            if line[3] == 'undefined':
-                player2['posx'].append(float('nan'))
-                player2['posy'].append(float('nan'))
-            else:
-                position=[int(round(float(x),0)) for x in line[3].split(",")]
-                player2['posx'].append(position[0])
-                player2['posy'].append(position[1])
-                
-            lastknown=[round(float(x),0) for x in line[5].split(',')]
-            pred=[round(float(x),0) for x in line[7].split(',')]
-            player2['last'].append(lastknown[:-1])
-            player2['pred'].append(pred)
+            print "player2"
+            parseline(player2, line)
 
-    # Each pplayer may have a different number of points
+    # Each player may have a different number of points
     print "p1 data points:", len(player1['posx'])
     print "p2 data points:", len(player2['posx'])
 
     # plot the knowns
-    # plotpositions(logname, player1, player2)
-    # plotchangerate(logname, player1, player2)
-    # plothistogram(logname, player1, "Player 1 X distributions", "_xhist.png")
-    #plothistogram(logname, player1, "Player 1 X distributions", "_xhist.png")
+    plotpositions(logname, player1, player2)
+    plotchangerate(logname, player1, player2)
+    plothistogram(logname, player1, "Player 1 X distributions", "_xhist.png")
 
+    # and plot the relative unknowns
     ploterror(logname, player1, player2)
     if not predictor == "None":
         print "plotting prediction error"
     else:
         print "no prediction to plot" 
+
+def parseline(player, line):
+    player['time'].append(int(line[1]))
+    # if no player position info then use previous value
+    if line[3] == 'undefined':
+        player['posx'].append(float('nan'))
+        player['posy'].append(float('nan'))
+    else:
+        position=[int(round(float(x),0)) for x in line[3].split(',')]
+        #we need a position before we calculate vector change
+        if len(player['posx']) > 0:
+            #calculate the vectors BEFORE appending position
+            player['vecx'].append(position[0] - player['posx'][-1])
+            player['vecy'].append(position[1] - player['posy'][-1])
+
+        player['posx'].append(position[0])
+        player['posy'].append(position[1])
+
+    lastknown=[round(float(x),0) for x in line[5].split(',')]
+    pred=[round(float(x),0) for x in line[7].split(',')]
+
+    player['last'].append(lastknown[:-1])
+    player['pred'].append(pred)
 
 def plotchangerate(logname, p1, p2):
     p1time = []
@@ -146,7 +136,6 @@ def ploterror(logname, p1, p2):
         last = np.matrix(p1['last'][idx])
         pred = np.matrix(p1['pred'][idx])
         error = np.sum(abs(pred-last))
-        print last, pred, error
         time = p1['time'][idx]
         if error < 1000:
             allerr.append(error)
@@ -154,9 +143,21 @@ def ploterror(logname, p1, p2):
 
     P.plot(alltime, allerr, label='Player 1 prediction error', linewidth=2)
 
+    alltime, allerr = [],[]
+    for idx in range(len(p2['time'])):
+        last = np.matrix(p2['last'][idx])
+        pred = np.matrix(p2['pred'][idx])
+        error = np.sum(abs(pred-last))
+        time = p2['time'][idx]
+        if error < 1000:
+            allerr.append(error)
+            alltime.append(time)
+
+    P.plot(alltime, allerr, label='Player 2 prediction error', linewidth=2)
+
     P.title("Summed Prediction Error")
-    P.xlabel('X Coordinate')
-    P.ylabel('Y Coordinate')
+    P.xlabel('Time (ms)')
+    P.ylabel('Summed Error')
     P.legend()
     P.savefig(logname+"_prederr.png")
 
