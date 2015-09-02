@@ -215,7 +215,7 @@
 		    // make sure there are enough predictions
 		    if (predictions[i].length > 0){
 			player =  predictions[i];
-			var otherpos = player[player.length -1];
+			var otherpos = player[player.length - 1];
 			drawcircle(otherpos, "rgba(0,255,0,0.9)");
 		    }
 		}
@@ -231,15 +231,17 @@
 		}
 		var logtime = Date.now() - starttime;
 		if (recording){
-		    loginfo(logtime,pos,player[player.length-1],predict,otherpos);
+		    var lastplayer = positions[i];
+                    var lastpos = lastplayer[lastplayer.length-1];
+		    loginfo(logtime, pos, lastpos, predict, otherpos);
 		}
 	    }
 	}
     }
 
     //sends info to server to record
-    function loginfo (logtime, pos,otherpos,predictor,pred){
-	var info = logtime+';'+uid+';'+pos+';'+lag+';'+ otherpos+';'+predictor+';'+pred+"\n";
+    function loginfo (logtime, pos, lastpos, predictor, pred){
+	var info = logtime+';'+uid+';'+pos+';'+lag+';'+ lastpos+';'+predictor+';'+pred+"\n";
 	socket.emit('loginfo', info);
     }
 

@@ -48,16 +48,23 @@ def main():
                 player1['posx'].append(float('nan'))
                 player1['posy'].append(float('nan'))
             else:
-                position =[int(round(float(x),0)) for x in line[3].split(',')]
+                position=[int(round(float(x),0)) for x in line[3].split(',')]
+                #we need a position before we calculate vector change
                 if linecount > 1:
-                    #calculate the vectors first
+                    #calculate the vectors BEFORE appending position
                     player1['vecx'].append(position[0] - player1['posx'][-1])
                     player1['vecy'].append(position[1] - player1['posy'][-1])
 
                 player1['posx'].append(position[0])
                 player1['posy'].append(position[1])
 
+            lastknown=[round(float(x),0) for x in line[5].split(',')]
+            pred=[round(float(x),0) for x in line[7].split(',')]
 
+            player1['last'].append(lastknown[:-1])
+            player1['pred'].append(pred)
+
+        # Parse second player
         if player == 1:
             player2['time'].append(int(line[1]))
             if line[3] == 'undefined':
@@ -67,17 +74,23 @@ def main():
                 position=[int(round(float(x),0)) for x in line[3].split(",")]
                 player2['posx'].append(position[0])
                 player2['posy'].append(position[1])
+                
+            lastknown=[round(float(x),0) for x in line[5].split(',')]
+            pred=[round(float(x),0) for x in line[7].split(',')]
+            player2['last'].append(lastknown[:-1])
+            player2['pred'].append(pred)
 
     # Each pplayer may have a different number of points
     print "p1 data points:", len(player1['posx'])
     print "p2 data points:", len(player2['posx'])
 
     # plot the knowns
-    plotpositions(logname, player1, player2)
-    plotchangerate(logname, player1, player2)
-    plothistogram(logname, player1, "Player 1 X distributions", "_xhist.png")
+    # plotpositions(logname, player1, player2)
+    # plotchangerate(logname, player1, player2)
+    # plothistogram(logname, player1, "Player 1 X distributions", "_xhist.png")
     #plothistogram(logname, player1, "Player 1 X distributions", "_xhist.png")
 
+    ploterror(logname, player1, player2)
     if not predictor == "None":
         print "plotting prediction error"
     else:
@@ -128,18 +141,24 @@ def plothistogram(logname, p1, title, filename):
         P.show()
 
 def ploterror(logname, p1, p2):
-    
-    time = []
-    error = []
-    
-    P.plot(p1['posx'], p1['posy'], label='Player 1', linewidth=2)
-    P.plot(p2['posx'], p2['posy'], label='Player 2', linewidth=2)
+    alltime, allerr = [],[]
+    for idx in range(len(p1['time'])):
+        last = np.matrix(p1['last'][idx])
+        pred = np.matrix(p1['pred'][idx])
+        error = np.sum(abs(pred-last))
+        print last, pred, error
+        time = p1['time'][idx]
+        if error < 1000:
+            allerr.append(error)
+            alltime.append(time)
+
+    P.plot(alltime, allerr, label='Player 1 prediction error', linewidth=2)
 
     P.title("Summed Prediction Error")
     P.xlabel('X Coordinate')
     P.ylabel('Y Coordinate')
     P.legend()
-    P.savefig(logname+"_positions.png")
+    P.savefig(logname+"_prederr.png")
 
     if SHOWGRAPH:
         P.show()

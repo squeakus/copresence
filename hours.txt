@@ -38,3 +38,5 @@
 2015-08-18: 4 hours now client, server and logger all synchronised
 2015-08-24: 5 hours, graphing positions and difference between players
 2015-08-31: 7 hours, now saving images to timestamped file and graphing all info
+2015-09-01: 6 hours, recording summed error but there is a bug in the code
+2015-09-02: 2 hours, fixed bug
